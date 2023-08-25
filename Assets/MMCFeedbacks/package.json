@@ -4,22 +4,13 @@
   "displayName": "MMCFeedbacks",
   "description": "It's the tool to create feedback.",
   "unity": "2022.3.5f1",
-  "unityRelease": "0b5",
-  "documentationUrl": "https://example.com/",
-  "changelogUrl": "https://example.com/changelog.html",
-  "licensesUrl": "https://example.com/licensing.html",
-  "dependencies": {
-    "com.[company-name].some-package": "1.0.0",
-    "com.[company-name].other-package": "2.0.0"
-  },
-  "keywords": [
-    "keyword1",
-    "keyword2",
-    "keyword3"
-  ],
+  "license": "MIT",
   "author": {
-    "name": "Unity",
-    "email": "unity@example.com",
-    "url": "https://www.unity3d.com"
+    "name": "Ayagi3678",
+    "url": "https://github.com/Ayagi3678"
+  },
+  "description": "Powerful Editor Extensions for Unity",
+  "dependencies": {
+    
   }
 }
