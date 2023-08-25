@@ -2,7 +2,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using MMCFeedbacks.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,15 +20,8 @@ namespace MMCFeedbacks.Core
         [SerializeField] private bool ignoreTimeScale;
         [Space(10)]
         [SerializeField] private Image target;
-        [Header("Image FillAmount")]
-        [SerializeField] private EaseMode mode;
-        [SerializeField,DisplayIf(nameof(mode),(int)EaseMode.Ease)] private Ease ease=Ease.Linear;
-        [SerializeField,DisplayIf(nameof(mode),(int)EaseMode.Curve)]
-        [NormalizedAnimationCurve(false)] private AnimationCurve curve=AnimationCurve.Linear(0,0,1,1);
-        [SerializeField] private float duration=1;
 
-        [SerializeField,Range(0,1)] private float zero;
-        [SerializeField,Range(0,1)] private float one=1;
+        [SerializeField] private FloatTweenParameter ImageFillAmount=new();
 
         private Tween _tween;
         private CancellationTokenSource _cancellationTokenSource;
@@ -55,14 +47,8 @@ namespace MMCFeedbacks.Core
             await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
             State = FeedbackState.Running;
 
-            _tween = target.DOFillAmount(one, duration)
-                .From(zero)
-                .SetUpdate(ignoreTimeScale)
-                .OnComplete(() => State = FeedbackState.Completed);
-            if (mode == EaseMode.Ease) 
-                _tween.SetEase(ease);
-            else 
-                _tween.SetEase(curve);
+            _tween = ImageFillAmount.DoTween(ignoreTimeScale, value => target.fillAmount = value)
+                .OnComplete(() => State=FeedbackState.Completed);
 
         }
     }

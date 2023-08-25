@@ -21,14 +21,7 @@ namespace MMCFeedbacks.Core
         [Space(10)]
         [SerializeField] private Graphic target;
         [SerializeField] private bool isReturn;
-        [Header("Color")]
-        [SerializeField] private EaseMode mode;
-        [SerializeField,DisplayIf(nameof(mode),(int)EaseMode.Ease)] private Ease ease=Ease.Linear;
-        [SerializeField,DisplayIf(nameof(mode),(int)EaseMode.Curve)]
-        [NormalizedAnimationCurve(false)] private AnimationCurve curve=AnimationCurve.Linear(0,0,1,1);
-        [SerializeField] private Color zero=Color.black;
-        [SerializeField] private Color one=Color.white;
-        [SerializeField] private float duration=1;
+        [SerializeField] private ColorTweenParameter Color = new();
 
         private Color _initialColor;
         private Tween _tween;
@@ -56,9 +49,7 @@ namespace MMCFeedbacks.Core
             State = FeedbackState.Running;
             
             _initialColor = target.color;
-            _tween = target.DOColor(one,duration)
-                .From(zero)
-                .SetUpdate(ignoreTimeScale)
+            _tween = Color.DoTween(ignoreTimeScale,value=>target.color=value)
                 .OnKill(() =>
                 {
                     if (isReturn) target.color = _initialColor;
@@ -68,11 +59,6 @@ namespace MMCFeedbacks.Core
                     if (isReturn) target.color = _initialColor;
                     State = FeedbackState.Completed;
                 });
-            
-            if (mode == EaseMode.Ease) 
-                _tween.SetEase(ease);
-            else 
-                _tween.SetEase(curve);
         }
     }
 }

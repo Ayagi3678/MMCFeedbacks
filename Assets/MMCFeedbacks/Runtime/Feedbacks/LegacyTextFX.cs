@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable] public class LegacyTextFX: IFeedback
+    /*[Serializable] public class LegacyTextFX: IFeedback
     {
         public int Order => 8;
         public bool IsActive { get; set; } = true;
@@ -64,5 +64,5 @@ namespace MMCFeedbacks.Core
                 _tween.SetEase(curve);
 
         }
-    }
+    }*/
 }

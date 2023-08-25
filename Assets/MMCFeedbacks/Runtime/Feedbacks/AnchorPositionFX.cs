@@ -20,17 +20,9 @@ namespace MMCFeedbacks.Core
         [SerializeField] private bool ignoreTimeScale;
         [Space(10)]
         [SerializeField] private RectTransform target;
-        [SerializeField] private bool isRelative = true;
         [SerializeField] private bool isReturn;
-        [Header("Anchor Position")]
-        [SerializeField] private EaseMode mode;
-        [SerializeField,DisplayIf(nameof(mode),(int)EaseMode.Ease)] private Ease ease=Ease.Linear;
-        [SerializeField,DisplayIf(nameof(mode),(int)EaseMode.Curve)]
-        [NormalizedAnimationCurve(false)] private AnimationCurve curve=AnimationCurve.Linear(0,0,1,1);
-        [SerializeField] private Vector3 zero;
-        [SerializeField] private Vector3 one;
-        [SerializeField] private float duration=1;
-        
+        [SerializeField] private Vector3TweenParameter AnchorPosition=new();
+
         private Tween _tween;
         private Vector3 _initialPosition;
         private CancellationTokenSource _cancellationTokenSource;
@@ -57,10 +49,7 @@ namespace MMCFeedbacks.Core
             State = FeedbackState.Running;
 
             _initialPosition = target.anchoredPosition3D;
-            _tween = target.DOAnchorPos3D(one, duration)
-                .From(zero, true, isRelative)
-                .SetRelative(isRelative)
-                .SetUpdate(ignoreTimeScale)
+            _tween = AnchorPosition.DoTween(ignoreTimeScale,value=>target.anchoredPosition3D=value)
                 .OnKill(() =>
                 {
                     if (isReturn) target.anchoredPosition3D = _initialPosition;
@@ -70,11 +59,6 @@ namespace MMCFeedbacks.Core
                     if (isReturn) target.anchoredPosition3D = _initialPosition;
                     State = FeedbackState.Completed;
                 });
-            
-            if (mode == EaseMode.Ease) 
-                _tween.SetEase(ease);
-            else 
-                _tween.SetEase(curve);
 
         }
     }

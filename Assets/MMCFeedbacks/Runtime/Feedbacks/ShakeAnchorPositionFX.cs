@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
+    /*[Serializable]
     public class ShakeAnchorPositionFX : IFeedback
     {
         public int Order => 8;
@@ -78,5 +78,5 @@ namespace MMCFeedbacks.Core
                 _tween.SetEase(curve);
 
         }
-    }
+    }*/
 }
