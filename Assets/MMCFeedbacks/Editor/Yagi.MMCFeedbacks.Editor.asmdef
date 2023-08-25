@@ -1,0 +1,20 @@
+{
+    "name": "Yagi.MMCFeedbacks.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e54d5d4ff68b30a4a8d783dcecd9abaa",
+        "GUID:343deaaf83e0cee4ca978e7df0b80d21",
+        "GUID:7c04f0dfa9243c04681a55d90d3ff3fc"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [
+        "Editor"
+    ],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

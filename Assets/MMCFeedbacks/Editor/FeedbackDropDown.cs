@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MMCFeedbacks.Core;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -13,8 +14,14 @@ namespace MMCFeedbacks.Editor
         
         public FeedbackDropDown(AdvancedDropdownState state) : base(state)
         {
-            var types = CoreUtility.FindClassesImplementing<IFeedback>();
-            foreach (var type in types)
+            var types = ReflectionUtility.FindClassesImplementing<IFeedback>();
+            var sortedTypes = types.OrderByDescending(i =>
+            {
+                var instance = Activator.CreateInstance(i);
+                if (instance is IFeedback custom) return custom.Order;
+                return 0;
+            });
+            foreach (var type in sortedTypes)
             {
                 var instance = Activator.CreateInstance(type);
                 if (instance is IFeedback custom) _feedbackList.Add(custom.MenuString);
