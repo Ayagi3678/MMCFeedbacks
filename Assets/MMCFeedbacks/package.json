@@ -1,9 +1,9 @@
 {
-    "name": "com.Yagi.MMCFeedbacks",
+    "name": "com.yagi.mmcfeedback",
     "version": "1.0.0",
     "displayName": "MMCFeedbacks",
     "description": "It's the tool to create feedback.",
-    "unity": "2022.3.5f1",
+    "unity": "2022.3",
     "license": "MIT",
     "author": {
       "name": "Ayagi3678",
