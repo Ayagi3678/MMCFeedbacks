@@ -1,16 +1,14 @@
 {
-  "name": "com.Yagi.MMCFeedbacks",
-  "version": "1.0.0",
-  "displayName": "MMCFeedbacks",
-  "description": "It's the tool to create feedback.",
-  "unity": "2022.3.5f1",
-  "license": "MIT",
-  "author": {
-    "name": "Ayagi3678",
-    "url": "https://github.com/Ayagi3678"
-  },
-  "description": "Powerful Editor Extensions for Unity",
-  "dependencies": {
-    
+    "name": "com.Yagi.MMCFeedbacks",
+    "version": "1.0.0",
+    "displayName": "MMCFeedbacks",
+    "description": "It's the tool to create feedback.",
+    "unity": "2022.3.5f1",
+    "license": "MIT",
+    "author": {
+      "name": "Ayagi3678",
+      "url": "https://github.com/Ayagi3678"
+    },
+    "dependencies": {
   }
 }
