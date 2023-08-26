@@ -54,6 +54,9 @@ namespace MMCFeedbacks.Core
                     target.volume = volumeScale;
                     target.Play();
                     break;
+                case PlayMode.StopAudioSource:
+                    target.Stop();
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -62,7 +65,8 @@ namespace MMCFeedbacks.Core
         private enum PlayMode
         {
             PlayOneShot,
-            PlayAudioSource
+            PlayAudioSource,
+            StopAudioSource
         }
     }
 }
