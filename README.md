@@ -1,8 +1,24 @@
 # MMCFeedbacks ってなぁに？
-#### MMCFeedbacksは、インスペクターをポチポチするだけで簡単にフィードバック（ゲームの手触り）が作れてしまうツールなんじゃ！
+- 色々なものをTweenさせてフィードバック（ゲームの手触り）を作るツール
+- ~~Feelの下位互換~~
+
+※DoTweenを使っているのでDoTweenの導入が必要
+## フィードバックの作り方
 - FeedbackPlayerコンポーネントをアタッチし、`AddFeedback▼`からフィードバックを追加する
- ![Image 1](/Assets/Documentation/img1.png)
-- フィードバックの[menu]から、削除・複製・リセットを行う
-- ![Image 2](/Assets/Documentation/img2.png)
-- でも博士！内部でDoTweenを使ってるから、一緒に導入する必要があるんじゃないの？
-- そうなんじゃよ...
+- フィードバックは[menu]から、削除・複製・リセットを行う
+
+   ![Image 1](/Assets/Documentation/img2.png)
+## 使い方
+- FeedbackPlayerにはFeedbackPlay()・FeedbackStop()メソッドが定義されている
+- Editor再生中は`Play` `Stop`のボタンを押して、フィードバックの動作を確認できる
+- FeedbackPlayerの再生オプション
+  - すべてのフィードバックを同時に再生する「Concurrent」
+  - 順番にフィードバックを再生する「Sequence」
+  - Sequenceを指定回数ループさせる「Loop」
+
+   ![Image 1](/Assets/Documentation/img1.png)
+## UPMを使った導入方法
+- Window => Package Manager => Add package from git URL...に
+```text
+https://github.com/Ayagi3678/MMCFeedbacks.git?path=/Assets/MMCFeedbacks
+```
