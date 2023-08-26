@@ -2,7 +2,7 @@
 - 色々なものをTweenさせてフィードバック（ゲームの手触り）を作るツール
 - ~~Feelの下位互換~~
 
-※DoTweenを使っているのでDoTweenの導入が必要
+※UniRx,UniTask,DoTweenの導入が必要
 ## フィードバックの作り方
 - FeedbackPlayerコンポーネントをアタッチし、`AddFeedback▼`からフィードバックを追加する
 - フィードバックは[menu]から、削除・複製・リセットを行う
