@@ -14,7 +14,7 @@ namespace MMCFeedbacks.Core
         void Play();
         void Stop();
 
-        void OnEnable(){}
+        void OnEnable(GameObject gameObject){}
         void OnDestroy(){}
     }
 

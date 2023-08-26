@@ -12,7 +12,7 @@ namespace MMCFeedbacks.Core
     [Serializable]
     public class RendererMaterialFX : IFeedback
     {
-         public int Order => 8;
+         public int Order => 5;
         public bool IsActive { get; set; } = true;
         public FeedbackState State { get; private set; }
         public string MenuString => "Graphic/Renderer Material";

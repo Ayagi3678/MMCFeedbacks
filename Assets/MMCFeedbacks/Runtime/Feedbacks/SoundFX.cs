@@ -10,7 +10,7 @@ namespace MMCFeedbacks.Core
     [Serializable]
     public class SoundFX : IFeedback
     {
-        public int Order => 7;
+        public int Order => 11;
         public bool IsActive { get; set; } = true;
         public FeedbackState State { get; private set; }
         public string MenuString => "Audio/Sound";

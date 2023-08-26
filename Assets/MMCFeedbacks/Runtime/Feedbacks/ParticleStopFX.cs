@@ -1,25 +1,22 @@
 ﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using MMCFeedbacks.Core;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
 namespace MMCFeedbacks.Core
 {
     [Serializable]
-    public class FeedbackPlayerFX : IFeedback
+    public class ParticleStopFX : IFeedback
     {
-        public int Order => -5;
+        public int Order => 4;
         public bool IsActive { get; set; } = true;
         public FeedbackState State { get; private set; }
-        public string MenuString => "etc/Feedback Player";
-        public Color TagColor => FeedbackStyling.EtcFXColor;
+        public string MenuString => "Particles/Particle Stop";
+        public Color TagColor => FeedbackStyling.ParticlesFXColor;
         
         [SerializeField] private Timing timing;
-        [Space(10)]
-        [SerializeField] private FeedbackPlayer feedbackPlayer;
-        
+        [Space(10)] 
+        [SerializeField] private ParticleSystem particle;
         private CancellationTokenSource _cancellationTokenSource;
         public void OnDestroy()
         {
@@ -33,19 +30,14 @@ namespace MMCFeedbacks.Core
             PlayAsync().Forget();
         }
 
-        public void Stop()
-        {
-            feedbackPlayer.StopFeedbacks();
-        }
+        public void Stop(){}
 
         private async UniTaskVoid PlayAsync()
         {
             await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),
                 cancellationToken: _cancellationTokenSource.Token);
-            feedbackPlayer.PlayFeedbacks();
-            await UniTask.WaitUntil(() => feedbackPlayer.IsComplete,
-                cancellationToken:_cancellationTokenSource.Token);
             State = FeedbackState.Completed;
+            particle.Stop(true);
         }
     }
 }

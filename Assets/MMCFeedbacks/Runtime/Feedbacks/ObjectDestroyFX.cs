@@ -1,30 +1,27 @@
 ﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using MMCFeedbacks.Core;
 using UnityEngine;
-using UnityEngine.Rendering.Universal;
+using Object = UnityEngine.Object;
 
 namespace MMCFeedbacks.Core
 {
     [Serializable]
-    public class FeedbackPlayerFX : IFeedback
+    public class ObjectDestroyFX : IFeedback
     {
-        public int Order => -5;
         public bool IsActive { get; set; } = true;
         public FeedbackState State { get; private set; }
-        public string MenuString => "etc/Feedback Player";
-        public Color TagColor => FeedbackStyling.EtcFXColor;
+        public string MenuString => "Object/Destroy";
+        public Color TagColor => FeedbackStyling.ObjectFXColor;
         
         [SerializeField] private Timing timing;
-        [Space(10)]
-        [SerializeField] private FeedbackPlayer feedbackPlayer;
-        
+        [Space(10)] [SerializeField] private GameObject target;
         private CancellationTokenSource _cancellationTokenSource;
         public void OnDestroy()
         {
             _cancellationTokenSource?.Cancel();
         }
+
         public void Play()
         {
             _cancellationTokenSource?.Cancel();
@@ -33,19 +30,14 @@ namespace MMCFeedbacks.Core
             PlayAsync().Forget();
         }
 
-        public void Stop()
-        {
-            feedbackPlayer.StopFeedbacks();
-        }
+        public void Stop(){}
 
         private async UniTaskVoid PlayAsync()
         {
             await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),
                 cancellationToken: _cancellationTokenSource.Token);
-            feedbackPlayer.PlayFeedbacks();
-            await UniTask.WaitUntil(() => feedbackPlayer.IsComplete,
-                cancellationToken:_cancellationTokenSource.Token);
             State = FeedbackState.Completed;
+            Object.Destroy(target);
         }
     }
 }

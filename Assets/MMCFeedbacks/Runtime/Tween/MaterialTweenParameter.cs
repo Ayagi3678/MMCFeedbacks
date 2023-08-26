@@ -11,9 +11,10 @@ namespace MMCFeedbacks.Core
         [SerializeField] private Material target;
         [SerializeField] private string propertyName;
         [SerializeField] private ParameterType type;
+        [SerializeField,DisplayIf(nameof(type),2)] private ColorTweenParameter Color = new();
         [SerializeField,DisplayIf(nameof(type),0)] private FloatTweenParameter Float = new();
         [SerializeField,DisplayIf(nameof(type),1)] private IntTweenParameter Int = new();
-        [SerializeField,DisplayIf(nameof(type),2)] private ColorTweenParameter Color = new();
+        [SerializeField, DisplayIf(nameof(type), 1)] private Vector3TweenParameter Vector3 = new();
 
         public Tween DoTween(bool ignoreTimeScale)
         {
@@ -22,8 +23,8 @@ namespace MMCFeedbacks.Core
             {
                 ParameterType.Float => Float.DoTween(ignoreTimeScale, value => target.SetFloat(propertyName, value)),
                 ParameterType.Int => Int.DoTween(ignoreTimeScale, value => target.SetInt(propertyName, value)),
-                ParameterType.Color => Color.DoTween(ignoreTimeScale,
-                    value => target.SetColor(propertyName, value)),
+                ParameterType.Color => Color.DoTween(ignoreTimeScale, value => target.SetColor(propertyName, value)),
+                ParameterType.Vector3 => Vector3.DoTween(ignoreTimeScale,value=> target.SetVector(propertyName,value)),
                 _ => throw new ArgumentOutOfRangeException()
             };
             return tween;
@@ -51,8 +52,9 @@ namespace MMCFeedbacks.Core
 
     public enum ParameterType
     {
+        Color,
         Float,
         Int,
-        Color
+        Vector3
     }
 }

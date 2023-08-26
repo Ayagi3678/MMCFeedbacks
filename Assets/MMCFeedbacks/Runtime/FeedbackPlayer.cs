@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using MMCFeedbacks.Core;
 using UnityEngine;
 
 namespace MMCFeedbacks.Core
@@ -11,12 +11,17 @@ namespace MMCFeedbacks.Core
         [SerializeField,DisplayIf(nameof(mode),(int)ExecuteMode.Loop)] private int loopCount;
         [SerializeField] private bool playAwake;
         [SerializeField] private FeedbackList list=new (new List<IFeedback>());
-        public FeedbackState State { get; private set; }
-        
+        public bool IsComplete { get; private set; }
+
+        private void Start()
+        {
+            if(playAwake) PlayFeedbacks();
+        }
+
         public void PlayFeedbacks()
         {
-            State = FeedbackState.Running;
-            FeedbackPlayerUtility.ExecuteFeedbacks(list,loopCount,destroyCancellationToken,(() => State=FeedbackState.Completed),mode);
+            IsComplete = false;
+            FeedbackPlayerUtility.ExecuteFeedbacks(list,loopCount,destroyCancellationToken,(() => IsComplete=true),mode);
         }
 
         public void StopFeedbacks()
@@ -31,7 +36,7 @@ namespace MMCFeedbacks.Core
         {
             foreach (var t in list.List.Where(t => t.IsActive))
             {
-                t.OnEnable();
+                t.OnEnable(gameObject);
             }
         }
 

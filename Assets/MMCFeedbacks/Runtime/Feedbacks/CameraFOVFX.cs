@@ -3,27 +3,25 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace MMCFeedbacks.Core
 {
     [Serializable]
-    public class ImageFillAmountFX : IFeedback
+    public class CameraFOVFX : IFeedback
     {
-        public int Order => 8;
+        public int Order => 10;
         public bool IsActive { get; set; } = true;
         public FeedbackState State { get; private set; }
-        public string MenuString => "UI/Image FillAmount";
-        public Color TagColor => FeedbackStyling.UIFXColor;
+        public string MenuString => "Camera/Camera FOV";
+        public Color TagColor => FeedbackStyling.CameraFXColor;
 
         [SerializeField] private Timing timing;
         [SerializeField] private bool ignoreTimeScale;
         [Space(10)]
-        [SerializeField] private Image target;
+        [SerializeField] private Camera target;
+        [SerializeField] private bool isReturn;
+        [SerializeField] private FloatTweenParameter Fov = new();
 
-        [SerializeField] private FloatTweenParameter ImageFillAmount=new();
-
-        private Tween _tween;
         private CancellationTokenSource _cancellationTokenSource;
         public void OnDestroy()
         {
@@ -31,25 +29,25 @@ namespace MMCFeedbacks.Core
         }
         public void Play()
         {
-            _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = new();
-            _tween?.Kill();
             State = FeedbackState.Pending;
             PlayAsync().Forget();
         }
-
         public void Stop()
         {
-            _tween.Pause();
         }
+        
         private async UniTaskVoid PlayAsync()
         {
             await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
             State = FeedbackState.Running;
-            
-            _tween = ImageFillAmount.DoTween(ignoreTimeScale, value => target.fillAmount = value)
-                .OnComplete(() => State=FeedbackState.Completed);
-
+            var initialValue = target.fieldOfView;
+            Fov.DoTween(ignoreTimeScale, value => target.fieldOfView = value)
+                .OnComplete(() =>
+                {
+                    if (isReturn) target.fieldOfView = initialValue;
+                    State = FeedbackState.Completed;
+                });
         }
     }
 }
