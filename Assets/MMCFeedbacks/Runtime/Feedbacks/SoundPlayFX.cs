@@ -8,12 +8,12 @@ using UnityEngine;
 namespace MMCFeedbacks.Core
 {
     [Serializable]
-    public class SoundFX : IFeedback
+    public class SoundPlayFX : IFeedback
     {
         public int Order => 11;
         public bool IsActive { get; set; } = true;
         public FeedbackState State { get; private set; }
-        public string MenuString => "Audio/Sound";
+        public string MenuString => "Audio/Sound Play";
         public Color TagColor => FeedbackStyling.AudioFXColor;
         [SerializeField] private Timing timing;
         [Space(10)] 
@@ -23,8 +23,6 @@ namespace MMCFeedbacks.Core
         [SerializeField] private PlayMode mode;
         [SerializeField,DisplayIf(nameof(mode),0)] private AudioClip clip;
         [SerializeField,DisplayIf(nameof(mode),0)] private float volumeScale = 1;
-        [SerializeField, DisplayIf(nameof(mode), 0)] private float pitchScale = 1;
-        private float _initialPitch;
         private CancellationTokenSource _cancellationTokenSource;
         public void OnDestroy()
         {
@@ -44,26 +42,19 @@ namespace MMCFeedbacks.Core
         }
         private async UniTaskVoid PlayAsync()
         {
-            OnComplete();
             await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
             State = FeedbackState.Running;
-
-            _initialPitch = target.pitch;
+            
             switch (mode)
             {
                 case PlayMode.PlayOneShot:
-                    target.pitch *= pitchScale;
                     target.PlayOneShot(clip,volumeScale);
-                    await UniTask.Delay(TimeSpan.FromSeconds(clip.length/target.pitch),cancellationToken:_cancellationTokenSource.Token);
-                    OnComplete();
-                    State = FeedbackState.Completed;
+                    await UniTask.WaitUntil(()=>!target.isPlaying,cancellationToken:_cancellationTokenSource.Token);                    State = FeedbackState.Completed;
                     break;
                 case PlayMode.PlayAudioSource:
                     target.volume = volumeScale;
-                    target.pitch *= pitchScale;
                     target.Play();
-                    await UniTask.Delay(TimeSpan.FromSeconds(clip.length/target.pitch),cancellationToken:_cancellationTokenSource.Token);
-                    OnComplete();
+                    await UniTask.WaitUntil(()=>!target.isPlaying,cancellationToken:_cancellationTokenSource.Token);
                     State = FeedbackState.Completed;
                     break;
                 case PlayMode.StopAudioSource:
@@ -73,11 +64,6 @@ namespace MMCFeedbacks.Core
                     throw new ArgumentOutOfRangeException();
             }
 
-        }
-
-        private void OnComplete()
-        {
-            if(target.pitch>0) target.pitch = _initialPitch;
         }
         private enum PlayMode
         {
