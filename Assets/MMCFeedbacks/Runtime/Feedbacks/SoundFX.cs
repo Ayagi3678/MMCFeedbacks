@@ -23,6 +23,8 @@ namespace MMCFeedbacks.Core
         [SerializeField] private PlayMode mode;
         [SerializeField,DisplayIf(nameof(mode),0)] private AudioClip clip;
         [SerializeField,DisplayIf(nameof(mode),0)] private float volumeScale = 1;
+        [SerializeField, DisplayIf(nameof(mode), 0)] private float pitchScale = 1;
+        private float _initialPitch;
         private CancellationTokenSource _cancellationTokenSource;
         public void OnDestroy()
         {
@@ -42,17 +44,27 @@ namespace MMCFeedbacks.Core
         }
         private async UniTaskVoid PlayAsync()
         {
+            OnComplete();
             await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Completed;
+            State = FeedbackState.Running;
 
+            _initialPitch = target.pitch;
             switch (mode)
             {
                 case PlayMode.PlayOneShot:
+                    target.pitch *= pitchScale;
                     target.PlayOneShot(clip,volumeScale);
+                    await UniTask.Delay(TimeSpan.FromSeconds(clip.length/target.pitch),cancellationToken:_cancellationTokenSource.Token);
+                    OnComplete();
+                    State = FeedbackState.Completed;
                     break;
                 case PlayMode.PlayAudioSource:
                     target.volume = volumeScale;
+                    target.pitch *= pitchScale;
                     target.Play();
+                    await UniTask.Delay(TimeSpan.FromSeconds(clip.length/target.pitch),cancellationToken:_cancellationTokenSource.Token);
+                    OnComplete();
+                    State = FeedbackState.Completed;
                     break;
                 case PlayMode.StopAudioSource:
                     target.Stop();
@@ -61,6 +73,11 @@ namespace MMCFeedbacks.Core
                     throw new ArgumentOutOfRangeException();
             }
 
+        }
+
+        private void OnComplete()
+        {
+            if(target.pitch>0) target.pitch = _initialPitch;
         }
         private enum PlayMode
         {
