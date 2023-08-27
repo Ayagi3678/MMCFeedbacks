@@ -15,6 +15,9 @@
   - すべてのフィードバックを同時に再生する「Concurrent」
   - 順番にフィードバックを再生する「Sequence」
   - Sequenceを指定回数ループさせる「Loop」
+## 拡張について
+- IFeedbackを継承したクラスを作成し、Play()に実行したい処理を書く。
+- Stateを実行時にRunning, 完了時にCompletedにする(※必須)
 
    ![Image 1](/Assets/Documentation/img1.png)
 ## UPMを使った導入方法
