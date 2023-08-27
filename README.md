@@ -7,9 +7,6 @@
 - FeedbackPlayerコンポーネントをアタッチし、`AddFeedback▼`からフィードバックを追加する
 - フィードバックは[menu]から、削除・複製・リセットを行う　
    ![Image](/Assets/Documentation/img2.png)
-## 拡張について
-- IFeedbackを継承したクラスを作成し、Play()に実行したい処理を書く。
-- Stateを実行時にRunning, 完了時にCompletedにする(※必須)
 ## 使い方
 - FeedbackPlayerにはFeedbackPlay()・FeedbackStop()メソッドが定義されている
 - Editor再生中は`Play` `Stop`のボタンを押して、フィードバックの動作を確認できる
@@ -19,6 +16,9 @@
   - Sequenceを指定回数ループさせる「
 
    ![Image 1](/Assets/Documentation/img1.png)
+## 拡張について
+- IFeedbackを継承したクラスを作成し、Play()に実行したい処理を書く。
+- Stateを実行時にRunning, 完了時にCompletedにする(※必須)
 ## UPMを使った導入方法
 - Window => Package Manager => Add package from git URL...に
 ```text
