@@ -1,6 +1,5 @@
 # MMCFeedbacks ってなぁに？
 - 色々なものをTweenさせてフィードバック（ゲームの手触り）を作るツール
-- ~~Feelの下位互換~~
 - 有能アセットFEELを真似したのでmimic(真似をする)という命名になっている
 
 ※UniRx,UniTask,DoTweenの導入が必要
