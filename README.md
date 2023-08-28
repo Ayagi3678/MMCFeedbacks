@@ -13,7 +13,7 @@
 - FeedbackPlayerの再生オプション
   - すべてのフィードバックを同時に再生する「Concurrent」
   - 順番にフィードバックを再生する「Sequence」
-  - Sequenceを指定回数ループさせる「
+  - Sequenceを指定回数ループさせる「Loop」
 
    ![Image 1](/Assets/Documentation/img1.png)
 ## 拡張について
