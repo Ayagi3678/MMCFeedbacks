@@ -8,17 +8,11 @@ using UnityEngine.Rendering.Universal;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class ColorAdjustmentsFX : IFeedback
+    [Serializable] public class ColorAdjustmentsFX : Feedback
     {
-        public int Order => 7;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Volume/Color Adjustments";
-        public Color TagColor => FeedbackStyling.VolumeFXColor;
-        
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 7;
+        public override string MenuString => "Volume/Color Adjustments";
+        public override Color TagColor => FeedbackStyling.VolumeFXColor;
         [SerializeField] private FloatTweenParameter Contrast=new(true);
         [SerializeField] private FloatTweenParameter HueShift=new(true);
         [SerializeField] private FloatTweenParameter Satuation = new(true);
@@ -30,48 +24,36 @@ namespace MMCFeedbacks.Core
         private float hueShift;
         [SerializeField][DisplayIf(nameof(Satuation),typeof(TweenParameter))][Range(-100,100)] 
         private float saturation;
-        
+
+        private ColorAdjustments _colorAdjustments;
         private Sequence _tweenSequence;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
-        {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            var colorAdjustments = VolumeSingleton.Instance.TryGetVolumeComponent<ColorAdjustments>();
-            VolumeSingleton.Instance.EnableVolumeComponent(colorAdjustments);
-            if (!Contrast.IsActive) colorAdjustments.contrast.value = contrast;
-            if (!HueShift.IsActive) colorAdjustments.hueShift.value = hueShift;
-            if (!Satuation.IsActive) colorAdjustments.saturation.value = saturation;
-            colorAdjustments.colorFilter.value = colorFilter;
 
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
+        protected override void OnReset()
+        {
             _tweenSequence?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync(colorAdjustments).Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tweenSequence.Pause();
-        }
-        private async UniTaskVoid PlayAsync(ColorAdjustments colorAdjustments)
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
+            _colorAdjustments ??= VolumeSingleton.Instance.TryGetVolumeComponent<ColorAdjustments>();
+            VolumeSingleton.Instance.EnableVolumeComponent(_colorAdjustments);
+            if (!Contrast.IsActive) _colorAdjustments.contrast.value = contrast;
+            if (!HueShift.IsActive) _colorAdjustments.hueShift.value = hueShift;
+            if (!Satuation.IsActive) _colorAdjustments.saturation.value = saturation;
+            _colorAdjustments.colorFilter.value = colorFilter;
+            
             _tweenSequence = DOTween.Sequence();
-            if (Contrast.IsActive) _tweenSequence.Join(Contrast.DoTween(ignoreTimeScale, value => colorAdjustments.contrast.value = value));
-            if (HueShift.IsActive) _tweenSequence.Join(HueShift.DoTween(ignoreTimeScale, value => colorAdjustments.hueShift.value = value));
-            if (Satuation.IsActive) _tweenSequence.Join(Satuation.DoTween(ignoreTimeScale, value => colorAdjustments.saturation.value = value));
+            if (Contrast.IsActive) _tweenSequence.Join(Contrast.DoTween(_ignoreTimeScale, value => _colorAdjustments.contrast.value = value));
+            if (HueShift.IsActive) _tweenSequence.Join(HueShift.DoTween(_ignoreTimeScale, value => _colorAdjustments.hueShift.value = value));
+            if (Satuation.IsActive) _tweenSequence.Join(Satuation.DoTween(_ignoreTimeScale, value => _colorAdjustments.saturation.value = value));
             _tweenSequence?.OnComplete(() =>
             {
-                VolumeSingleton.Instance.DisableVolumeComponent(colorAdjustments);
-                State = FeedbackState.Completed;
+                VolumeSingleton.Instance.DisableVolumeComponent(_colorAdjustments);
+                Complete();
             });
-
+        }
+        protected override void OnStop()
+        {
+            _tweenSequence?.Pause();
         }
     }
 }

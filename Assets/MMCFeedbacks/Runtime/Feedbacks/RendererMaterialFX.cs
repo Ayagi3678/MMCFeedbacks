@@ -9,17 +9,11 @@ using Object = UnityEngine.Object;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class RendererMaterialFX : IFeedback
+    [Serializable] public class RendererMaterialFX : Feedback
     {
-         public int Order => 5;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Graphic/Renderer Material";
-        public Color TagColor => FeedbackStyling.GraphicFXColor;
-
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 5;
+        public override string MenuString => "Graphic/Renderer Material";
+        public override Color TagColor => FeedbackStyling.GraphicFXColor;
         [Space(10)]
         [SerializeField] private Renderer target;
         [Header("Material")]
@@ -28,44 +22,34 @@ namespace MMCFeedbacks.Core
         [SerializeField,DisplayIf(nameof(type),0)] private FloatTweenParameter Float = new();
         [SerializeField,DisplayIf(nameof(type),1)] private IntTweenParameter Int = new();
         [SerializeField,DisplayIf(nameof(type),2)] private ColorTweenParameter Color = new();
+        [SerializeField,DisplayIf(nameof(type),3)] private Vector3TweenParameter Vector3 =new ();
+
+        private Material _targetMaterial;
         private Tween _tween;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tween?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tween.Pause();
-        }
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
-            var targetMaterial = target.material;
+            _targetMaterial = target.material;
             _tween = type switch
             {
-                ParameterType.Float => Float.DoTween(ignoreTimeScale, value => targetMaterial.SetFloat(propertyName, value)),
-                ParameterType.Int => Int.DoTween(ignoreTimeScale, value => targetMaterial.SetInt(propertyName, value)),
-                ParameterType.Color => Color.DoTween(ignoreTimeScale,
-                    value => targetMaterial.SetColor(propertyName, value)),
+                ParameterType.Float => Float.DoTween(_ignoreTimeScale, value => _targetMaterial.SetFloat(propertyName, value)),
+                ParameterType.Int => Int.DoTween(_ignoreTimeScale, value => _targetMaterial.SetInt(propertyName, value)),
+                ParameterType.Color => Color.DoTween(_ignoreTimeScale, value => _targetMaterial.SetColor(propertyName, value)),
+                ParameterType.Vector3 => Vector3.DoTween(_ignoreTimeScale,value=>_targetMaterial.SetVector(propertyName,value)),
                 _ => throw new ArgumentOutOfRangeException()
             };
             _tween.OnComplete(() =>
             {
-                State = FeedbackState.Completed;
-                Object.Destroy(targetMaterial);
+                Complete();
+                Object.Destroy(_targetMaterial);
             });
+        }
+        protected override void OnStop()
+        {
+            _tween?.Pause();
         }
     }
 }

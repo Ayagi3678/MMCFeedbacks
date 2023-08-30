@@ -8,15 +8,11 @@ using UnityEngine.Rendering.Universal;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class LensDistortionFX : IFeedback
+    [Serializable] public class LensDistortionFX : Feedback
     {
-        public int Order => 7;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set;}
-        public string MenuString => "Volume/Lens Distortion";
-        public Color TagColor => FeedbackStyling.VolumeFXColor;
-        [SerializeField] private Timing timing;
+        public override int Order => 7;
+        public override string MenuString => "Volume/Lens Distortion";
+        public override Color TagColor => FeedbackStyling.VolumeFXColor;
         [SerializeField] private bool ignoreTimeScale;
         [SerializeField] private FloatTweenParameter Intensity=new();
 
@@ -28,45 +24,32 @@ namespace MMCFeedbacks.Core
         [SerializeField] private Vector2 center=new (.5f,.5f);
         [SerializeField, Range(0.01f, 5)] private float scale=1;
 
+        private LensDistortion _lensDistortion;
         private Tween _tween;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            var lensDistortion = VolumeSingleton.Instance.TryGetVolumeComponent<LensDistortion>();
-            VolumeSingleton.Instance.EnableVolumeComponent(lensDistortion);
-            if (!Intensity.IsActive) lensDistortion.intensity.value = intensity;
-            lensDistortion.xMultiplier.value = xMultiplier;
-            lensDistortion.yMultiplier.value = yMultiplier;
-            lensDistortion.center.value = center;
-            lensDistortion.scale.value = scale;
-            
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tween?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync(lensDistortion).Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tween?.Pause();
-        }
-
-        private async UniTaskVoid PlayAsync(LensDistortion lensDistortion)
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
+            _lensDistortion = VolumeSingleton.Instance.TryGetVolumeComponent<LensDistortion>();
+            VolumeSingleton.Instance.EnableVolumeComponent(_lensDistortion);
+            if (!Intensity.IsActive) _lensDistortion.intensity.value = intensity;
+            _lensDistortion.xMultiplier.value = xMultiplier;
+            _lensDistortion.yMultiplier.value = yMultiplier;
+            _lensDistortion.center.value = center;
+            _lensDistortion.scale.value = scale;
             
-            _tween = Intensity.DoTween(ignoreTimeScale, value=>lensDistortion.intensity.value=value)
+            _tween = Intensity.DoTween(ignoreTimeScale, value=>_lensDistortion.intensity.value=value)
                 .OnComplete(() =>
                 {
-                    VolumeSingleton.Instance.DisableVolumeComponent(lensDistortion);
-                    State = FeedbackState.Completed;
+                    VolumeSingleton.Instance.DisableVolumeComponent(_lensDistortion);
+                    Complete();
                 });
+        }
+        protected override void OnStop()
+        {
+            _tween?.Pause();
         }
     }
 }

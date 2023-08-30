@@ -6,17 +6,12 @@ using UnityEngine;
 
 namespace MMCFeedbacks.Core
 {
-    /*[Serializable]
-    public class ShakeAnchorPositionFX : IFeedback
+    //TODO:MagicTweenに対応
+    /*[Serializable] public class ShakeAnchorPositionFX : Feedback
     {
-        public int Order => 8;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "RectTransform/Shake Anchor Position";
-        public Color TagColor => FeedbackStyling.RectTransformFXColor;
-        
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 8;
+        public override string MenuString => "RectTransform/Shake Anchor Position";
+        public override Color TagColor => FeedbackStyling.RectTransformFXColor;
         [Space(10)]
         [SerializeField] private RectTransform target;
         [SerializeField] private bool isRelative = true;
@@ -33,35 +28,18 @@ namespace MMCFeedbacks.Core
         [SerializeField] private bool snapping;
         [SerializeField] private bool isFadeOut = true;
         
-        private Tween _tween;
         private Vector3 _initialPosition;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        private Tween _tween;
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tween?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tween.Pause();
-        }
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
             _initialPosition = target.anchoredPosition3D;
             _tween = target.DOShakeAnchorPos(duration,strength,vibrato,randomness,snapping,isFadeOut)
                 .SetRelative(isRelative)
-                .SetUpdate(ignoreTimeScale)
+                .SetUpdate(_ignoreTimeScale)
                 .OnKill(() =>
                 {
                     target.anchoredPosition3D = _initialPosition;
@@ -69,14 +47,17 @@ namespace MMCFeedbacks.Core
                 .OnComplete(() =>
                 {
                     target.anchoredPosition3D = _initialPosition;
-                    State = FeedbackState.Completed;
+                    Complete();
                 });
             
             if (mode == EaseMode.Ease) 
                 _tween.SetEase(ease);
             else 
                 _tween.SetEase(curve);
-
+        }
+        protected override void OnStop()
+        {
+            _tween?.Pause();
         }
     }*/
 }

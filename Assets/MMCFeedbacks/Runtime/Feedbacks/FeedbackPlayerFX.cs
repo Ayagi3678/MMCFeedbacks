@@ -7,45 +7,23 @@ using UnityEngine.Rendering.Universal;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class FeedbackPlayerFX : IFeedback
+    [Serializable] public class FeedbackPlayerFX : Feedback
     {
-        public int Order => -5;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "etc/Feedback Player";
-        public Color TagColor => FeedbackStyling.EtcFXColor;
-        
-        [SerializeField] private Timing timing;
+        public override int Order => -5;
+        public override string MenuString => "etc/Feedback Player";
+        public override Color TagColor => FeedbackStyling.EtcFXColor;
         [Space(10)]
         [SerializeField] private FeedbackPlayer feedbackPlayer;
-        
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+
+        protected override void OnPlay()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
+            feedbackPlayer.PlayFeedbacks();
+            Complete();
         }
 
-        public void Stop()
+        protected override void OnStop()
         {
             feedbackPlayer.StopFeedbacks();
-        }
-
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),
-                cancellationToken: _cancellationTokenSource.Token);
-            feedbackPlayer.PlayFeedbacks();
-            await UniTask.WaitUntil(() => feedbackPlayer.IsComplete,
-                cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Completed;
         }
     }
 }

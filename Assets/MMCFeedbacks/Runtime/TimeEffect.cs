@@ -8,8 +8,7 @@ namespace MMCFeedbacks.Core
     {
         public int Priority { get; }
         public float TimeScale { get; }
-        private readonly Subject<Unit> _onDiscard = new();
-        public IObservable<Unit> OnDiscard => _onDiscard;
+        public event Action OnDiscard;
 
         public TimeEffect(int priority, float timeScale, float discordTime)
         {
@@ -21,12 +20,12 @@ namespace MMCFeedbacks.Core
         private async UniTaskVoid DiscardAsync(float discordTime)
         {
             await UniTask.Delay(TimeSpan.FromSeconds(discordTime),true);
-            _onDiscard.OnNext(Unit.Default);
+            OnDiscard?.Invoke();
         }
 
         public void Discard()
         {
-            _onDiscard.OnNext(Unit.Default);
+            OnDiscard?.Invoke();
         }
     }
 }

@@ -23,7 +23,11 @@ namespace MMCFeedbacks.Core
         public void EnableVolumeComponent(VolumeComponent volumeComponent)
         {
             volumeComponent.active = true;
-            foreach (var t in volumeComponent.parameters) t.overrideState = true;
+            for (var i = 0; i < volumeComponent.parameters.Count; i++)
+            {
+                var t = volumeComponent.parameters[i];
+                t.overrideState = true;
+            }
         }
         public void DisableVolumeComponent(VolumeComponent volumeComponent)
         {

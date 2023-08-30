@@ -8,17 +8,11 @@ using UnityEngine.Rendering.Universal;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class VignetteFX : IFeedback
+    [Serializable] public class VignetteFX : Feedback
     {
-        public int Order => 7;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Volume/Vignette";
-        public Color TagColor => FeedbackStyling.VolumeFXColor;
-        
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 7;
+        public override string MenuString => "Volume/Vignette";
+        public override Color TagColor => FeedbackStyling.VolumeFXColor;
         [SerializeField] private FloatTweenParameter Intensity=new(true);
         [SerializeField] private ColorTweenParameter Color = new(true);
 
@@ -30,49 +24,38 @@ namespace MMCFeedbacks.Core
         [SerializeField] private Vector2 center=new(.5f,.5f);
         [SerializeField,Range(.01f,1f)] private float smoothness=.2f;
         [SerializeField] private bool rounded;
-        
+
+        private Vignette _vignette;
         private Sequence _tweenSequence;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            var vignette = VolumeSingleton.Instance.TryGetVolumeComponent<Vignette>();
-            VolumeSingleton.Instance.EnableVolumeComponent(vignette);
-            if (!Intensity.IsActive) vignette.intensity.value = intensity;
-            if (!Color.IsActive) vignette.color.value = color;
-            vignette.center.value = center;
-            vignette.smoothness.value = smoothness;
-            vignette.rounded.value = rounded;
-
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tweenSequence?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync(vignette).Forget();
         }
 
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tweenSequence.Pause();
-        }
-        private async UniTaskVoid PlayAsync(Vignette vignette)
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
+            _vignette = VolumeSingleton.Instance.TryGetVolumeComponent<Vignette>();
+            VolumeSingleton.Instance.EnableVolumeComponent(_vignette);
+            if (!Intensity.IsActive) _vignette.intensity.value = intensity;
+            if (!Color.IsActive) _vignette.color.value = color;
+            _vignette.center.value = center;
+            _vignette.smoothness.value = smoothness;
+            _vignette.rounded.value = rounded;
+            
             _tweenSequence = DOTween.Sequence();
             _tweenSequence
-                .Join(Intensity.DoTween(ignoreTimeScale, value => vignette.intensity.value = value))
-                .Join(Color.DoTween(ignoreTimeScale, value => vignette.color.value = value));
+                .Join(Intensity.DoTween(_ignoreTimeScale, value => _vignette.intensity.value = value))
+                .Join(Color.DoTween(_ignoreTimeScale, value => _vignette.color.value = value));
             _tweenSequence.OnComplete(() =>
             {
-                VolumeSingleton.Instance.DisableVolumeComponent(vignette);
-                State = FeedbackState.Completed;
+                VolumeSingleton.Instance.DisableVolumeComponent(_vignette);
+                Complete();
             });
+        }
 
+        protected override void OnStop()
+        {
+            _tweenSequence?.Pause();
         }
     }
 }

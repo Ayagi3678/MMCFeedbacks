@@ -8,58 +8,36 @@ using UnityEngine.Rendering.Universal;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class PositionFX : IFeedback
+    [Serializable] public class PositionFX : Feedback
     {
-        public int Order => 9;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Transform/Position";
-        public Color TagColor => FeedbackStyling.TransformFXColor;
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 9;
+        public override string MenuString => "Transform/Position";
+        public override Color TagColor => FeedbackStyling.TransformFXColor;
         [Space(10)] 
 
         [SerializeField] private SimulationSpace simulationSpace;
+        [SerializeField, DisplayIf(nameof(simulationSpace), 2)] private Transform customTransformTarget;
+        [Space(5)]
         [SerializeField] private GameObject target;
         [SerializeField] private bool isRelative = true;
         [SerializeField] private bool isReturn;
         [Header("Position")]
         [SerializeField] private EaseMode mode;
-        [SerializeField,DisplayIf(nameof(mode),(int)EaseMode.Ease)] private Ease ease=Ease.Linear;
-        [SerializeField,DisplayIf(nameof(mode),(int)EaseMode.Curve)]
+        [SerializeField,DisplayIf(nameof(mode),0)] private Ease ease=Ease.Linear;
+        [SerializeField,DisplayIf(nameof(mode),1)]
         [NormalizedAnimationCurve(false)] private AnimationCurve curve=AnimationCurve.Linear(0,0,1,1);
         [SerializeField] private Vector3 zero;
         [SerializeField] private Vector3 one;
         [SerializeField] private float duration=1;
-
         
-        private Tween _tween;
         private Vector3 _initialPosition;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        private Tween _tween;
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tween?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tween.Pause();
-        }
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
-            
             switch (simulationSpace)
             {
                 case SimulationSpace.World:
@@ -67,7 +45,7 @@ namespace MMCFeedbacks.Core
                     _tween = target.transform.DOMove(one, duration)
                         .From(zero, true, isRelative)
                         .SetRelative(isRelative)
-                        .SetUpdate(ignoreTimeScale)
+                        .SetUpdate(_ignoreTimeScale)
                         .OnKill(() =>
                         {
                             if (isReturn) target.transform.position = _initialPosition;
@@ -75,7 +53,7 @@ namespace MMCFeedbacks.Core
                         .OnComplete(() =>
                         {
                             if (isReturn) target.transform.position = _initialPosition;
-                            State = FeedbackState.Completed;
+                            Complete();
                         });
                     break;
                 case SimulationSpace.Local:
@@ -83,7 +61,7 @@ namespace MMCFeedbacks.Core
                     _tween = target.transform.DOLocalMove(one, duration)
                         .From(zero,true,isRelative)
                         .SetRelative(isRelative)
-                        .SetUpdate(ignoreTimeScale)
+                        .SetUpdate(_ignoreTimeScale)
                         .OnKill(() =>
                         {
                             if (isReturn) target.transform.localPosition = _initialPosition;
@@ -91,25 +69,21 @@ namespace MMCFeedbacks.Core
                         .OnComplete(() =>
                         {
                             if (isReturn) target.transform.localPosition = _initialPosition;
-                            State = FeedbackState.Completed;
+                            Complete();
                         });
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
             
             if (mode == EaseMode.Ease) 
                 _tween.SetEase(ease);
             else 
                 _tween.SetEase(curve);
-
         }
-    }
-    public enum SimulationSpace
-    {
-        World,
-        Local,
-        CustomTarget
+        protected override void OnStop()
+        {
+            _tween?.Pause();
+        }
     }
 }

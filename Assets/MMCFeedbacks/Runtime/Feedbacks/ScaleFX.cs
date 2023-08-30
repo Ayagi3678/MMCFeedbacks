@@ -7,16 +7,11 @@ using UnityEngine;
 
 namespace MMCFeedbacks.Core
 {
-    public class ScaleFX : IFeedback
+    [Serializable] public class ScaleFX : Feedback
     {
-        public int Order => 9;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Transform/Scale";
-        public Color TagColor => FeedbackStyling.TransformFXColor;
-        
-        [SerializeField] private Timing timing = new();
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 9;
+        public override string MenuString => "Transform/Scale";
+        public override Color TagColor => FeedbackStyling.TransformFXColor;
         [Space(10)] 
         
         [SerializeField] private GameObject target;
@@ -30,39 +25,20 @@ namespace MMCFeedbacks.Core
         [SerializeField] private Vector3 zero;
         [SerializeField] private Vector3 one;
         [SerializeField] private float duration=1;
-
         
-        private Tween _tween;
         private Vector3 _initialScale;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        private Tween _tween;
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tween?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tween.Pause();
-        }
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
-            
             _initialScale = target.transform.localScale;
             _tween = target.transform.DOScale(one, duration)
                 .From(zero, true, isRelative)
                 .SetRelative(isRelative)
-                .SetUpdate(ignoreTimeScale)
+                .SetUpdate(_ignoreTimeScale)
                 .OnKill(() =>
                 {
                     if (isReturn) target.transform.localScale = _initialScale;
@@ -70,7 +46,7 @@ namespace MMCFeedbacks.Core
                 .OnComplete(() =>
                 {
                     if (isReturn) target.transform.localScale = _initialScale;
-                    State = FeedbackState.Completed;
+                    Complete();
                 });
 
             
@@ -78,7 +54,10 @@ namespace MMCFeedbacks.Core
                 _tween.SetEase(ease);
             else 
                 _tween.SetEase(curve);
-
+        }
+        protected override void OnStop()
+        {
+            _tween?.Pause();
         }
     }
 }

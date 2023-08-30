@@ -8,16 +8,11 @@ using UnityEngine.Rendering.Universal;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class DepthOfFieldFX : IFeedback
+    [Serializable] public class DepthOfFieldFX : Feedback
     {
-        public int Order => 7;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Volume/Depth Of Field";
-        public Color TagColor => FeedbackStyling.VolumeFXColor;
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 7;
+        public override string MenuString => "Volume/Depth Of Field";
+        public override Color TagColor => FeedbackStyling.VolumeFXColor;
         [SerializeField] private FloatTweenParameter FocusDistance = new(true);
         [SerializeField] private FloatTweenParameter FocalLength = new(true);
 
@@ -31,50 +26,36 @@ namespace MMCFeedbacks.Core
         [SerializeField,Range(0,1)] private float bladeCurvature=1;
         [SerializeField,Range(-180,180)] private float bladeRotation;
 
+        private DepthOfField _depthOfField;
         private Sequence _tweenSequence;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        
-        public void Play()
-        {
-            var depthOfField = VolumeSingleton.Instance.TryGetVolumeComponent<DepthOfField>();
-            VolumeSingleton.Instance.EnableVolumeComponent(depthOfField);
-            if (!FocusDistance.IsActive) depthOfField.focusDistance.value = focusDistance;
-            if (!FocalLength.IsActive) depthOfField.focalLength.value = focalLength;
-            depthOfField.aperture.value = aperture;
-            depthOfField.bladeCount.value = bladeCount;
-            depthOfField.bladeCurvature.value = bladeCurvature;
-            depthOfField.bladeRotation.value = bladeRotation;
-
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tweenSequence?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync(depthOfField).Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tweenSequence.Pause();
-        }
-        private async UniTaskVoid PlayAsync(DepthOfField depthOfField)
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
+            _depthOfField ??= VolumeSingleton.Instance.TryGetVolumeComponent<DepthOfField>();
+            VolumeSingleton.Instance.EnableVolumeComponent(_depthOfField);
+            if (!FocusDistance.IsActive) _depthOfField.focusDistance.value = focusDistance;
+            if (!FocalLength.IsActive) _depthOfField.focalLength.value = focalLength;
+            _depthOfField.aperture.value = aperture;
+            _depthOfField.bladeCount.value = bladeCount;
+            _depthOfField.bladeCurvature.value = bladeCurvature;
+            _depthOfField.bladeRotation.value = bladeRotation;
+            
             _tweenSequence = DOTween.Sequence();
-            if(FocusDistance.IsActive)_tweenSequence.Join(FocusDistance.DoTween(ignoreTimeScale,value=>depthOfField.focusDistance.value=value));
-            if(FocalLength.IsActive)_tweenSequence.Join(FocalLength.DoTween(ignoreTimeScale, value => depthOfField.focalLength.value = value));
+            if(FocusDistance.IsActive)_tweenSequence.Join(FocusDistance.DoTween(_ignoreTimeScale,value=>_depthOfField.focusDistance.value=value));
+            if(FocalLength.IsActive)_tweenSequence.Join(FocalLength.DoTween(_ignoreTimeScale, value => _depthOfField.focalLength.value = value));
 
             _tweenSequence.OnComplete(() =>
             {
-                VolumeSingleton.Instance.DisableVolumeComponent(depthOfField);
-                State = FeedbackState.Completed;
+                VolumeSingleton.Instance.DisableVolumeComponent(_depthOfField);
+                Complete();
             });
-
+        }
+        protected override void OnStop()
+        {
+            _tweenSequence?.Pause();
         }
     }
 }

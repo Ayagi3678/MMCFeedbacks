@@ -14,17 +14,17 @@ namespace MMCFeedbacks.Editor
         
         public FeedbackDropDown(AdvancedDropdownState state) : base(state)
         {
-            var types = ReflectionUtility.FindClassesImplementing<IFeedback>();
+            var types = ReflectionUtility.FindClassesImplementing<Feedback>();
             var sortedTypes = types.OrderByDescending(i =>
             {
                 var instance = Activator.CreateInstance(i);
-                if (instance is IFeedback custom) return custom.Order;
+                if (instance is Feedback custom) return custom.Order;
                 return 0;
             });
             foreach (var type in sortedTypes)
             {
                 var instance = Activator.CreateInstance(type);
-                if (instance is IFeedback custom) _feedbackList.Add(custom.MenuString);
+                if (instance is Feedback custom) _feedbackList.Add(custom.MenuString);
             }
         }
 

@@ -7,16 +7,11 @@ using UnityEngine;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class RotationFX : IFeedback
+    [Serializable] public class RotationFX : Feedback
     {
-        public int Order => 9;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Transform/Rotation";
-        public Color TagColor => FeedbackStyling.TransformFXColor;
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 9;
+        public override string MenuString => "Transform/Rotation";
+        public override Color TagColor => FeedbackStyling.TransformFXColor;
         [Space(10)] 
 
         [SerializeField] private SimulationSpace simulationSpace;
@@ -33,32 +28,14 @@ namespace MMCFeedbacks.Core
         [SerializeField] private float duration=1;
 
         
-        private Tween _tween;
         private Vector3 _initialRotation;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        private Tween _tween;
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tween?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tween.Pause();
-        }
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
-            
             switch (simulationSpace)
             {
                 case SimulationSpace.World:
@@ -66,7 +43,7 @@ namespace MMCFeedbacks.Core
                     _tween = target.transform.DORotate(one, duration, RotateMode.FastBeyond360)
                         .From(zero, true, isRelative)
                         .SetRelative(isRelative)
-                        .SetUpdate(ignoreTimeScale)
+                        .SetUpdate(_ignoreTimeScale)
                         .OnKill(() =>
                         {
                             if (isReturn) target.transform.eulerAngles = _initialRotation;
@@ -74,7 +51,7 @@ namespace MMCFeedbacks.Core
                         .OnComplete(() =>
                         {
                             if (isReturn) target.transform.eulerAngles = _initialRotation;
-                            State = FeedbackState.Completed;
+                            Complete();
                         });
                     break;
                 case SimulationSpace.Local:
@@ -82,7 +59,7 @@ namespace MMCFeedbacks.Core
                     _tween = target.transform.DOLocalRotate(one, duration, RotateMode.FastBeyond360)
                         .From(zero,true,isRelative)
                         .SetRelative(isRelative)
-                        .SetUpdate(ignoreTimeScale)
+                        .SetUpdate(_ignoreTimeScale)
                         .OnKill(() =>
                         {
                             if (isReturn) target.transform.localEulerAngles = _initialRotation;
@@ -90,7 +67,7 @@ namespace MMCFeedbacks.Core
                         .OnComplete(() =>
                         {
                             if (isReturn) target.transform.localEulerAngles = _initialRotation;
-                            State = FeedbackState.Completed;
+                            Complete();
                         });
                     break;
                 default:
@@ -103,6 +80,10 @@ namespace MMCFeedbacks.Core
             else 
                 _tween.SetEase(curve);
 
+        }
+        protected override void OnStop()
+        {
+            _tween?.Pause();
         }
     }
 }

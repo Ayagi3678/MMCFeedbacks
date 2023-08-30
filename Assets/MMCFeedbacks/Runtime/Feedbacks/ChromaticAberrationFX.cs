@@ -8,59 +8,41 @@ using UnityEngine.Rendering.Universal;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class ChromaticAberrationFX : IFeedback
+    [Serializable] public class ChromaticAberrationFX : Feedback
     {
-        public int Order => 7;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Volume/Chromatic Aberration";
-        public Color TagColor => FeedbackStyling.VolumeFXColor;
-        
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 7;
+        public override string MenuString => "Volume/Chromatic Aberration";
+        public override Color TagColor => FeedbackStyling.VolumeFXColor;
         [SerializeField] private FloatTweenParameter Intensity=new();
 
         [Header("Chromatic Aberration")] 
         [SerializeField][DisplayIf(nameof(Intensity),typeof(TweenParameter))][Range(0,1)]
         private float intensity;
+
+        private ChromaticAberration _chromaticAberration;
         private Tween _tween;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            var chromaticAberration = VolumeSingleton.Instance.TryGetVolumeComponent<ChromaticAberration>();
-            VolumeSingleton.Instance.EnableVolumeComponent(chromaticAberration);
-            if (!Intensity.IsActive) chromaticAberration.intensity.value = intensity;
-
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tween?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync(chromaticAberration).Forget();
         }
 
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tween.Pause();
-        }
-
-        private async UniTaskVoid
-            PlayAsync(ChromaticAberration vignette)
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
-            _tween = Intensity.DoTween(ignoreTimeScale, value => vignette.intensity.value = value)
+            _chromaticAberration ??= VolumeSingleton.Instance.TryGetVolumeComponent<ChromaticAberration>();
+            VolumeSingleton.Instance.EnableVolumeComponent(_chromaticAberration);
+            if (!Intensity.IsActive) _chromaticAberration.intensity.value = intensity;
+            
+            _tween = Intensity.DoTween(_ignoreTimeScale, value => _chromaticAberration.intensity.value = value)
                 .OnComplete(() =>
                 {
-                    VolumeSingleton.Instance.DisableVolumeComponent(vignette);
-                    State = FeedbackState.Completed;
+                    VolumeSingleton.Instance.DisableVolumeComponent(_chromaticAberration);
+                    Complete();
                 });
+        }
 
+        protected override void OnStop()
+        {
+            _tween?.Pause();
         }
     }
 }

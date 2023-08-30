@@ -11,27 +11,26 @@ namespace MMCFeedbacks.Core
         public static List<Type> FindClassesImplementing<T>()
         {
             var implementingTypes = new List<Type>();
-
             // アセンブリ内のすべての型を取得
             var types = Assembly.GetExecutingAssembly().GetTypes();
 
             // 各型に対してインターフェースの継承をチェック
             foreach (var type in types)
-                if (typeof(T).IsAssignableFrom(type) && type.IsClass)
+                if (!type.IsAbstract && typeof(T).IsAssignableFrom(type))
                     implementingTypes.Add(type);
 
             return implementingTypes;
         }
 
-        public static IFeedback CopyFeedback(this IFeedback feedback)
+        public static Feedback CopyFeedback(this Feedback feedback)
         {
             Type type = feedback.GetType();
             var constructorInfo = type.GetConstructor(Type.EmptyTypes);
-            IFeedback clone = (IFeedback)constructorInfo.Invoke(Type.EmptyTypes);
+            Feedback clone = (Feedback)constructorInfo.Invoke(Type.EmptyTypes);
             var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
                 .SelectMany(x => x.CustomAttributes
                     .Where(t => t.AttributeType == typeof(SerializeField))
-                    .Select(_ => x));;
+                    .Select(_ => x));
             foreach (FieldInfo field in fields)
             {
                 if (!field.FieldType.IsClass)

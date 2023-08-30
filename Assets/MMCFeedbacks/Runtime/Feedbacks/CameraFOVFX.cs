@@ -6,48 +6,39 @@ using UnityEngine;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class CameraFOVFX : IFeedback
+    [Serializable] public class CameraFOVFX : Feedback
     {
-        public int Order => 10;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Camera/Camera FOV";
-        public Color TagColor => FeedbackStyling.CameraFXColor;
-
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 10;
+        public override string MenuString => "Camera/Camera FOV";
+        public override Color TagColor => FeedbackStyling.CameraFXColor;
         [Space(10)]
         [SerializeField] private Camera target;
         [SerializeField] private bool isReturn;
         [SerializeField] private FloatTweenParameter Fov = new();
 
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        private float _initialFOV;
+        private Tween _tween;
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
+            _tween?.Kill();
         }
-        public void Play()
+        protected override void OnPlay()
         {
-            _cancellationTokenSource = new();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
-        }
-        public void Stop()
-        {
-        }
-        
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-            var initialValue = target.fieldOfView;
-            Fov.DoTween(ignoreTimeScale, value => target.fieldOfView = value)
+            _initialFOV = target.fieldOfView;
+            _tween=Fov.DoTween(_ignoreTimeScale, value => target.fieldOfView = value)
+                .OnKill(() =>
+                {
+                    if (isReturn) target.fieldOfView = _initialFOV;
+                })
                 .OnComplete(() =>
                 {
-                    if (isReturn) target.fieldOfView = initialValue;
-                    State = FeedbackState.Completed;
+                    if (isReturn) target.fieldOfView = _initialFOV;
+                    Complete();
                 });
+        }
+        protected override void OnStop()
+        {
+            _tween?.Pause();
         }
     }
 }

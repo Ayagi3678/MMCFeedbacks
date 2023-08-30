@@ -6,15 +6,10 @@ using Object = System.Object;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class ObjectInstantiate : IFeedback
+    [Serializable] public class ObjectInstantiate : Feedback
     {
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Object/Instantiate";
-        public Color TagColor => FeedbackStyling.ObjectFXColor;
-        
-        [SerializeField] private Timing timing;
+        public override string MenuString => "Object/Instantiate";
+        public override Color TagColor => FeedbackStyling.ObjectFXColor;
         [Space(10)] 
         [SerializeField] private GameObject prefab;
         [SerializeField] private SimulationSpace space;
@@ -25,32 +20,8 @@ namespace MMCFeedbacks.Core
         [SerializeField]private Vector3 targetRotation;
 
         private GameObject _gameObject;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnPlay()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-
-        public void OnEnable(GameObject gameObject)
-        {
-            _gameObject = gameObject;
-        }
-
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
-        }
-
-        public void Stop(){}
-
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),
-                cancellationToken: _cancellationTokenSource.Token);
-            State = FeedbackState.Completed;
             switch (space)
             {
                 case SimulationSpace.World:
@@ -65,7 +36,13 @@ namespace MMCFeedbacks.Core
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
+            Complete();
+        }
+        public enum SimulationSpace
+        {
+            World,
+            Local,
+            CustomTarget
         }
     }
 }

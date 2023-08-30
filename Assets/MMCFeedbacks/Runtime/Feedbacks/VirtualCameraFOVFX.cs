@@ -8,48 +8,37 @@ using Random = System.Random;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class VirtualCameraFOVFX : IFeedback
+    [Serializable] public class VirtualCameraFOVFX : Feedback
     {
-         public int Order => 10;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Camera/Virtual Camera FOV";
-        public Color TagColor => FeedbackStyling.CameraFXColor;
-
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 10;
+        public override string MenuString => "Camera/Virtual Camera FOV";
+        public override Color TagColor => FeedbackStyling.CameraFXColor;
         [Space(10)]
         [SerializeField] private CinemachineVirtualCamera target;
         [SerializeField] private bool isReturn;
         [SerializeField] private FloatTweenParameter Fov = new();
 
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        private float _initialFOV;
+        private Tween _tween;
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
+            _tween?.Kill();
         }
-        public void Play()
+
+        protected override void OnPlay()
         {
-            _cancellationTokenSource = new();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
-        }
-        public void Stop()
-        {
-        }
-        
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-            var initialValue = target.m_Lens.FieldOfView;
-            Fov.DoTween(ignoreTimeScale, value => target.m_Lens.FieldOfView = value)
+            _initialFOV = target.m_Lens.FieldOfView;
+            _tween= Fov.DoTween(_ignoreTimeScale, value => target.m_Lens.FieldOfView = value)
                 .OnComplete(() =>
                 {
-                    if (isReturn) target.m_Lens.FieldOfView = initialValue;
-                    State = FeedbackState.Completed;
+                    if (isReturn) target.m_Lens.FieldOfView = _initialFOV;
+                    Complete();
                 });
+        }
+
+        protected override void OnStop()
+        {
+            _tween?.Pause();
         }
     }
 }

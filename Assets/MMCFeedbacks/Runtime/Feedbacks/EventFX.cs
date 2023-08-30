@@ -7,40 +7,18 @@ using UnityEngine.Events;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class EventFX : IFeedback
+    [Serializable] public class EventFX : Feedback
     {
-        public int Order => -5;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "etc/Event";
-        public Color TagColor => FeedbackStyling.EtcFXColor;
-        
-        [SerializeField] private Timing timing;
+        public override int Order => -5;
+        public override string MenuString => "etc/Event";
+        public override Color TagColor => FeedbackStyling.EtcFXColor;
         [Space(10)]
         [SerializeField] private UnityEvent @event;
-        
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
-        {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
-        }
 
-        public void Stop(){}
-
-        private async UniTaskVoid PlayAsync()
+        protected override void OnPlay()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),
-                cancellationToken: _cancellationTokenSource.Token);
-            State = FeedbackState.Completed;
             @event.Invoke();
+            Complete();
         }
     }
 }

@@ -6,53 +6,44 @@ using UnityEngine;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class AudioPitchFX : IFeedback
+    [Serializable] public class AudioPitchFX : Feedback
     {
-        public int Order => 11;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Audio/Audio Pitch";
-        public Color TagColor => FeedbackStyling.AudioFXColor;
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 11;
+        public override string MenuString => "Audio/Audio Pitch";
+        public override Color TagColor => FeedbackStyling.AudioFXColor;
         [Space(10)] 
         [SerializeField] private AudioSource target;
-        [SerializeField] private bool isReturn;
+        [SerializeField] private bool isReturn = true;
 
         [SerializeField] private FloatTweenParameter Pitch = new();
+
+        private float _initialPitch;
         private Tween _tween;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
-            State = FeedbackState.Pending;
             _tween?.Kill();
-            PlayAsync().Forget();
         }
 
-        public void Stop()
+        protected override void OnPlay()
         {
-            target.Stop();
-        }
-
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),
-                cancellationToken: _cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-            var initialPitch = target.pitch;
-            _tween=Pitch.DoTween(ignoreTimeScale, value => target.pitch = value)
+            _initialPitch = target.pitch;
+            _tween=Pitch.DoTween(_ignoreTimeScale, value => target.pitch = value)
+                .OnKill(()=>
+                {
+                    if (isReturn) target.pitch = _initialPitch;
+                    target.Stop();
+                })
                 .OnComplete(() =>
                 {
-                    if (isReturn) target.pitch = initialPitch;
-                    State = FeedbackState.Completed;
+                    if (isReturn) target.pitch = _initialPitch;
+                    target.Stop();
+                    Complete();
                 });
+        }
+
+        protected override void OnStop()
+        {
+            _tween?.Pause();
         }
     }
 }

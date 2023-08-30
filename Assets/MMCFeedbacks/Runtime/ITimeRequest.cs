@@ -7,6 +7,6 @@ namespace MMCFeedbacks.Core
     {
         public int Priority { get; }
         public float TimeScale { get; }
-        IObservable<Unit> OnDiscard { get; }
+        public event Action OnDiscard;
     }
 }

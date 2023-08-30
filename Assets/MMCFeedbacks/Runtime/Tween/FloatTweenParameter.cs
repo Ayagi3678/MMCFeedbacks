@@ -47,10 +47,4 @@ namespace MMCFeedbacks.Core
             duration = parameter.duration;
         }
     }
-
-    public enum EaseMode
-    {
-        Ease,
-        Curve
-    }
 }

@@ -37,7 +37,7 @@ namespace MMCFeedbacks.Core
         public void SetTimeRequest(ITimeRequest timeEffect)
         {
             _timeRequests.Add(timeEffect);
-            timeEffect.OnDiscard.Subscribe(_ => _timeRequests.Remove(timeEffect)).AddTo(this);
+            timeEffect.OnDiscard += () => _timeRequests.Remove(timeEffect);
         }
     }
 }

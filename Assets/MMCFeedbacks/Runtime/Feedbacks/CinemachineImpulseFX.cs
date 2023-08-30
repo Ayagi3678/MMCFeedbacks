@@ -8,17 +8,11 @@ using Random = UnityEngine.Random;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class CinemachineImpulseFX : IFeedback
+    [Serializable] public class CinemachineImpulseFX : Feedback
     {
-        public int Order => 10;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Camera/Cinemachine Impulse";
-        public Color TagColor => FeedbackStyling.CameraFXColor;
-
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 10;
+        public override string MenuString => "Camera/Cinemachine Impulse";
+        public override Color TagColor => FeedbackStyling.CameraFXColor;
         [Header("Cinemachine")] [SerializeField]
         private ImpulseMode mode;
         [Space(5)]
@@ -29,27 +23,10 @@ namespace MMCFeedbacks.Core
         [SerializeField][DisplayIf(nameof(mode),(int)ImpulseMode.ImpulseDefinition)]
         private CinemachineImpulseDefinition impulseDefinition = new ();
         
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnPlay()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource = new();
-            State = FeedbackState.Pending;
-            CinemachineImpulseManager.Instance.IgnoreTimeScale=ignoreTimeScale;
-            PlayAsync().Forget();
-        }
-        public void Stop()
-        {
-            CinemachineImpulseManager.Instance.Clear();
-        }
-        
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Completed;
+            var camera = Camera.main;
+            CinemachineImpulseManager.Instance.IgnoreTimeScale = _ignoreTimeScale;
             switch(mode)
             {
                 case ImpulseMode.ImpulseSource:
@@ -59,13 +36,19 @@ namespace MMCFeedbacks.Core
                     impulseCollisionSource.GenerateImpulse();
                     break;
                 case ImpulseMode.ImpulseDefinition:
-                    if (Camera.main != null)
-                        impulseDefinition.CreateEvent(Camera.main.transform.position, Random.onUnitSphere);
+                    impulseDefinition.CreateEvent(camera.transform.position, Random.onUnitSphere);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             };
+            Complete();
         }
+
+        protected override void OnStop()
+        {
+            CinemachineImpulseManager.Instance.Clear();
+        }
+
         private enum ImpulseMode
         {
             ImpulseSource,

@@ -7,81 +7,64 @@ using UnityEngine.UI;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class GraphicColorFX : IFeedback
+    [Serializable] public class GraphicColorFX : Feedback
     {
-        public int Order => 5;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Graphic/Graphic Color";
-        public Color TagColor => FeedbackStyling.GraphicFXColor;
-
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 5;
+        public override string MenuString => "Graphic/Graphic Color";
+        public override Color TagColor => FeedbackStyling.GraphicFXColor; 
         [Space(10)]
         [SerializeField] private Graphic target;
         [SerializeField] private bool isReturn;
         [SerializeField] private TweenMode mode;
         [SerializeField,DisplayIf(nameof(mode),0)] private ColorTweenParameter Color = new();
         [SerializeField,DisplayIf(nameof(mode),1)] private FloatTweenParameter Alpha = new();
+
+        private Color _initialColor;
+        private float _initialAlpha;
         private Tween _tween;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tween?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tween.Pause();
-        }
-        private async UniTaskVoid PlayAsync()
-        {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-
-
             switch (mode)
             {
                 case TweenMode.Color:
-                    var initialColor = target.color;
-                    _tween = Color.DoTween(ignoreTimeScale,value=>target.color=value)
+                    _initialColor = target.color;
+                    _tween = Color.DoTween(_ignoreTimeScale,value=>target.color=value)
                         .OnKill(() =>
                         {
-                            if (isReturn) target.color = initialColor;
+                            if (isReturn) target.color = _initialColor;
                         })
                         .OnComplete(() =>
                         {
-                            if (isReturn) target.color = initialColor;
-                            State = FeedbackState.Completed;
+                            if (isReturn) target.color = _initialColor;
+                            Complete();
                         });
                     break;
                 case TweenMode.Alpha:
-                    var initialAlpha = target.color.a;
-                    _tween = Alpha.DoTween(ignoreTimeScale,value=>target.color=new Color(target.color.r,target.color.g,target.color.b,value))
+                    _initialAlpha = target.color.a;
+                    _tween = Alpha.DoTween(_ignoreTimeScale,value=>target.color=new Color(target.color.r,target.color.g,target.color.b,value))
                         .OnKill(() =>
                         {
-                            if (isReturn) target.color = new Color(target.color.r,target.color.g,target.color.b,initialAlpha);
+                            if (isReturn) target.color = new Color(target.color.r,target.color.g,target.color.b,_initialAlpha);
                         })
                         .OnComplete(() =>
                         {
-                            if (isReturn) target.color = new Color(target.color.r,target.color.g,target.color.b,initialAlpha);
-                            State = FeedbackState.Completed;
+                            if (isReturn) target.color = new Color(target.color.r,target.color.g,target.color.b,_initialAlpha);
+                            Complete();
                         });
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
         }
+        protected override void OnStop()
+        {
+            _tween?.Pause();
+        }
+
         private enum TweenMode
         {
             Color,

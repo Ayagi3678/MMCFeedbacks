@@ -7,49 +7,29 @@ using UnityEngine.UI;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class ImageFillAmountFX : IFeedback
+    [Serializable] public class ImageFillAmountFX : Feedback
     {
-        public int Order => 8;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "UI/Image FillAmount";
-        public Color TagColor => FeedbackStyling.UIFXColor;
-
-        [SerializeField] private Timing timing;
-        [SerializeField] private bool ignoreTimeScale;
+        public override int Order => 8;
+        public override string MenuString => "UI/Image FillAmount";
+        public override Color TagColor => FeedbackStyling.UIFXColor;
         [Space(10)]
         [SerializeField] private Image target;
 
         [SerializeField] private FloatTweenParameter ImageFillAmount=new();
 
         private Tween _tween;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
+        protected override void OnReset()
         {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
             _tween?.Kill();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
         }
-
-        public void Stop()
+        protected override void OnPlay()
         {
-            _tween.Pause();
+            _tween = ImageFillAmount.DoTween(_ignoreTimeScale, value => target.fillAmount = value)
+                .OnComplete(Complete);
         }
-        private async UniTaskVoid PlayAsync()
+        protected override void OnStop()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),cancellationToken:_cancellationTokenSource.Token);
-            State = FeedbackState.Running;
-            
-            _tween = ImageFillAmount.DoTween(ignoreTimeScale, value => target.fillAmount = value)
-                .OnComplete(() => State=FeedbackState.Completed);
-
+            _tween?.Pause();
         }
     }
 }

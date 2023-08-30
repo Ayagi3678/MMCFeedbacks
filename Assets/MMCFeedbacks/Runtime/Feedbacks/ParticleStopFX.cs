@@ -5,39 +5,21 @@ using UnityEngine;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable]
-    public class ParticleStopFX : IFeedback
+    [Serializable] public class ParticleStopFX : Feedback
     {
-        public int Order => 4;
-        public bool IsActive { get; set; } = true;
-        public FeedbackState State { get; private set; }
-        public string MenuString => "Particles/Particle Stop";
-        public Color TagColor => FeedbackStyling.ParticlesFXColor;
-        
-        [SerializeField] private Timing timing;
-        [Space(10)] 
-        [SerializeField] private ParticleSystem particle;
-        private CancellationTokenSource _cancellationTokenSource;
-        public void OnDestroy()
-        {
-            _cancellationTokenSource?.Cancel();
-        }
-        public void Play()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new();
-            State = FeedbackState.Pending;
-            PlayAsync().Forget();
-        }
+        public override int Order => 4;
+        public override string MenuString => "Particles/Particle Stop";
+        public override Color TagColor => FeedbackStyling.ParticlesFXColor;
+        [Space(10)] [SerializeField] private ParticleSystem particle;
 
-        public void Stop(){}
-
-        private async UniTaskVoid PlayAsync()
+        protected override void OnPlay()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(timing.delayTime),
-                cancellationToken: _cancellationTokenSource.Token);
-            State = FeedbackState.Completed;
             particle.Stop(true);
+            Complete();
+        }
+        protected override void OnStop()
+        {
+            particle.Stop();
         }
     }
 }

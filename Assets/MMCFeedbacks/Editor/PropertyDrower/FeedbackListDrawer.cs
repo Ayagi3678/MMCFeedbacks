@@ -82,7 +82,7 @@ namespace MMCFeedbacks.Editor
         private void DrawElement(Rect rect, int index, bool isActive, bool isFocused)
         {
             var element = _reorderableList.serializedProperty.GetArrayElementAtIndex(index);
-            if (element.managedReferenceValue is IFeedback referenceValue)
+            if (element.managedReferenceValue is Feedback referenceValue)
             {
                 var tagColor = referenceValue.TagColor;
                 var label =referenceValue.Label;
@@ -103,7 +103,7 @@ namespace MMCFeedbacks.Editor
                     menu.AddItem(new GUIContent("Reset"), false, () =>
                     {
                         _feedbackList.List.RemoveAt(index);
-                        _feedbackList.List.Insert(index, Activator.CreateInstance(referenceValue.GetType())as IFeedback);
+                        _feedbackList.List.Insert(index, Activator.CreateInstance(referenceValue.GetType())as Feedback);
                     });
                     menu.ShowAsContext();
                 }

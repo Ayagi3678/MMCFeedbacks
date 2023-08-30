@@ -11,19 +11,21 @@ namespace MMCFeedbacks.Core
     [Serializable]
     public struct FeedbackList : IEquatable<FeedbackList>
     {
-        [SerializeReference] public List<IFeedback> List;
+        [SerializeReference] public List<Feedback> List;
 
-        public FeedbackList(List<IFeedback> list)
+        public FeedbackList(List<Feedback> list)
         {
             List = list;
         }
 
         public void AddFeedback(string selectString)
         {
-            var types = ReflectionUtility.FindClassesImplementing<IFeedback>();
-            foreach (var instance in types.Select(Activator.CreateInstance))
+            var types = ReflectionUtility.FindClassesImplementing<Feedback>();
+            foreach (var type in types)
             {
-                if(instance is not IFeedback feedback) continue;
+                // ReSharper disable once HeapView.ObjectAllocation
+                var instance = Activator.CreateInstance(type);
+                if(instance is not Feedback feedback) continue;
                 if (feedback.Label != selectString)continue;
                 List.Add(feedback);
             }
@@ -34,7 +36,7 @@ namespace MMCFeedbacks.Core
             return List == other.List;
         }
 
-        public static implicit operator List<IFeedback>(FeedbackList feedbackList)
+        public static implicit operator List<Feedback>(FeedbackList feedbackList)
         {
             return feedbackList.List;
         }
