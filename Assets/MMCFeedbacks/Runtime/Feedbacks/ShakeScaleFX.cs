@@ -35,7 +35,7 @@ namespace MMCFeedbacks.Core
             _tween?.Kill();
         }
 
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             _initialScale = target.transform.localScale;
             _tween = target.transform.DOShakeScale(duration,strength,vibrato,randomness,isFadeOut)

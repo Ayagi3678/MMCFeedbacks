@@ -11,7 +11,7 @@ namespace MMCFeedbacks.Core
         public override string MenuString => "Object/Destroy";
         public override Color TagColor => FeedbackStyling.ObjectFXColor;
         [Space(10)] [SerializeField] private GameObject target;
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             Object.Destroy(target);
             Complete();

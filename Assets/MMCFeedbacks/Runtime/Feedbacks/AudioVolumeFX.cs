@@ -2,6 +2,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using DG.Tweening.Core;
 using UnityEngine;
 
 namespace MMCFeedbacks.Core
@@ -17,26 +18,30 @@ namespace MMCFeedbacks.Core
 
         [SerializeField] private FloatTweenParameter Volume = new();
         
+        private TweenCallback _onKillCache;
+        private TweenCallback _onCompleteCache;
+        private DOGetter<float> _getterCache;
+        private DOSetter<float> _setterCache;
         private float _initialVolume;
         private Tween _tween;
+        protected override void OnEnable(GameObject gameObject)
+        {
+            _onKillCache = () => { if (isReturn) target.volume = _initialVolume; };
+            _onCompleteCache = () => { if (isReturn) target.volume = _initialVolume; Complete();};
+            _getterCache = () => target.volume;
+            _setterCache = x => target.volume = x;
+        }
         protected override void OnReset()
         {
             _tween?.Kill();
         }
 
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             _initialVolume = target.volume;
-            _tween=Volume.DoTween(_ignoreTimeScale, value => target.volume = value)
-                .OnKill(() =>
-                {
-                    if (isReturn) target.volume = _initialVolume;
-                })
-                .OnComplete(() =>
-                {
-                    if (isReturn) target.volume = _initialVolume;
-                    Complete();
-                });
+            _tween=Volume.ExecuteTween(_ignoreTimeScale, _getterCache,_setterCache)
+                .OnKill(_onKillCache)
+                .OnComplete(_onCompleteCache);
         }
 
         protected override void OnStop()

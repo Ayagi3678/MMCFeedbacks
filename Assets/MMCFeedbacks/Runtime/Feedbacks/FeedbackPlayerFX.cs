@@ -15,7 +15,7 @@ namespace MMCFeedbacks.Core
         [Space(10)]
         [SerializeField] private FeedbackPlayer feedbackPlayer;
 
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             feedbackPlayer.PlayFeedbacks();
             Complete();

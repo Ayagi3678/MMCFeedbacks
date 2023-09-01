@@ -1,5 +1,6 @@
 ﻿using System;
 using DG.Tweening;
+using DG.Tweening.Core;
 using MMCFeedbacks.Core;
 using UnityEngine;
 
@@ -16,10 +17,11 @@ namespace MMCFeedbacks.Core
         [SerializeField] private Color one=Color.white;
         [SerializeField] private float duration=1;
         
-        public Tween DoTween(bool ignoreTimeScale,TweenCallback<Color> callback)
+        public Tween ExecuteTween(bool ignoreTimeScale,DOGetter<Color> getter,DOSetter<Color> setter)
         {
             if (!IsActive) return null;
-            var tween = DOVirtual.Color(zero, one, duration, callback)
+            var tween = DOTween.To(getter,setter,one,duration)
+                .From(zero)
                 .SetUpdate(ignoreTimeScale);
             if (mode == EaseMode.Ease) 
                 tween.SetEase(ease);

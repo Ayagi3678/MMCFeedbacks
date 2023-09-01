@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using MMCFeedbacks.Core;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
@@ -16,7 +17,7 @@ namespace MMCFeedbacks.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             if(_reorderableList==null) Initialize(property);
-
+            
             if (fieldInfo.GetValue(property.serializedObject.targetObject) is FeedbackList feedbackList) 
                 _feedbackList = feedbackList;
             var listRect = position;
@@ -136,7 +137,11 @@ namespace MMCFeedbacks.Editor
                     EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
                     if (GUI.Button(playButtonRect, "Play", new GUIStyle("minibuttonmid")))
                     {
-                        referenceValue.Play();
+                        if (_reorderableList.serializedProperty.serializedObject.targetObject is FeedbackPlayer feedbackPlayer)
+                        {
+                            feedbackPlayer.ResetCancellationSource();
+                            referenceValue.Play(feedbackPlayer.CancellationTokenSource.Token);
+                        }
                     }
                     if (GUI.Button(stopButtonRect,"Stop",new GUIStyle("minibuttonmid")))
                     {

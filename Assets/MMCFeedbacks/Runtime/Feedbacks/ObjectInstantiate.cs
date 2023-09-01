@@ -20,7 +20,7 @@ namespace MMCFeedbacks.Core
         [SerializeField]private Vector3 targetRotation;
 
         private GameObject _gameObject;
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             switch (space)
             {

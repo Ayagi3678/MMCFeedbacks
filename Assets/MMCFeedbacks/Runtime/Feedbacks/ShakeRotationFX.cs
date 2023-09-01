@@ -34,7 +34,7 @@ namespace MMCFeedbacks.Core
             _tween?.Kill();
         }
 
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             _initialRotation = target.transform.eulerAngles;
             _tween = target.transform.DOShakeRotation(duration,strength,vibrato,randomness,isFadeOut)

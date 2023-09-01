@@ -2,6 +2,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using DG.Tweening.Core;
 using MMCFeedbacks.Core;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -26,13 +27,26 @@ namespace MMCFeedbacks.Core
         [SerializeField,Range(0,1)] private float bladeCurvature=1;
         [SerializeField,Range(-180,180)] private float bladeRotation;
 
+        private TweenCallback _onCompleteCache;
+        private DOGetter<float> _getterFocusDistanceCache;
+        private DOSetter<float> _setterFocusDistanceCache;
+        private DOGetter<float> _getterFocalLengthCache;
+        private DOSetter<float> _setterFocalLengthCache;
         private DepthOfField _depthOfField;
         private Sequence _tweenSequence;
+        protected override void OnEnable(GameObject gameObject)
+        {
+            _onCompleteCache = () => {   VolumeSingleton.Instance.DisableVolumeComponent(_depthOfField); Complete();};
+            _getterFocusDistanceCache = () => _depthOfField.focusDistance.value;
+            _setterFocusDistanceCache = x => _depthOfField.focusDistance.value = x;
+            _getterFocalLengthCache = () => _depthOfField.focalLength.value;
+            _setterFocalLengthCache = x => _depthOfField.focalLength.value = x;
+        }
         protected override void OnReset()
         {
             _tweenSequence?.Kill();
         }
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             _depthOfField ??= VolumeSingleton.Instance.TryGetVolumeComponent<DepthOfField>();
             VolumeSingleton.Instance.EnableVolumeComponent(_depthOfField);
@@ -42,16 +56,10 @@ namespace MMCFeedbacks.Core
             _depthOfField.bladeCount.value = bladeCount;
             _depthOfField.bladeCurvature.value = bladeCurvature;
             _depthOfField.bladeRotation.value = bladeRotation;
-            
-            _tweenSequence = DOTween.Sequence();
-            if(FocusDistance.IsActive)_tweenSequence.Join(FocusDistance.DoTween(_ignoreTimeScale,value=>_depthOfField.focusDistance.value=value));
-            if(FocalLength.IsActive)_tweenSequence.Join(FocalLength.DoTween(_ignoreTimeScale, value => _depthOfField.focalLength.value = value));
 
-            _tweenSequence.OnComplete(() =>
-            {
-                VolumeSingleton.Instance.DisableVolumeComponent(_depthOfField);
-                Complete();
-            });
+            _tweenSequence = DOTween.Sequence().OnComplete(_onCompleteCache);
+            if(FocusDistance.IsActive)_tweenSequence.Join(FocusDistance.ExecuteTween(_ignoreTimeScale,_getterFocusDistanceCache,_setterFocusDistanceCache));
+            if(FocalLength.IsActive)_tweenSequence.Join(FocalLength.ExecuteTween(_ignoreTimeScale, _getterFocalLengthCache,_setterFocalLengthCache));
         }
         protected override void OnStop()
         {

@@ -35,7 +35,7 @@ namespace MMCFeedbacks.Core
             _tween?.Kill();
         }
 
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             _initialPosition = target.transform.position;
             _tween = target.transform.DOShakePosition(duration, strength, vibrato, randomness, snapping, isFadeOut)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using DG.Tweening.Core;
 using UnityEngine;
@@ -8,7 +7,8 @@ using UnityEngine.UI;
 
 namespace MMCFeedbacks.Core
 {
-    [Serializable] public class GraphicColorFX : Feedback
+    [Serializable]
+    public class GraphicAlphaFX : Feedback
     {
         public override int Order => 5;
         public override string MenuString => "Graphic/Graphic Color";
@@ -16,20 +16,20 @@ namespace MMCFeedbacks.Core
         [Space(10)]
         [SerializeField] private Graphic target;
         [SerializeField] private bool isReturn;
-        [SerializeField] private ColorTweenParameter Color = new();
-
+        [SerializeField] private FloatTweenParameter Alpha = new();
+        
         private TweenCallback _onKillCache;
         private TweenCallback _onCompleteCache;
-        private DOGetter<Color> _getterCache;
-        private DOSetter<Color> _setterCache;
-        private Color _initialColor;
+        private DOGetter<float> _getterCache;
+        private DOSetter<float> _setterCache;
+        private float _initialAlpha;
         private Tween _tween;
         protected override void OnEnable(GameObject gameObject)
         {
-            _onKillCache = () => { if (isReturn) target.color = _initialColor; };
-            _onCompleteCache = () => { if (isReturn) target.color = _initialColor; Complete(); };
-            _getterCache = () => target.color;
-            _setterCache = x => target.color=x;
+            _onKillCache = () => { if (isReturn) target.color = new Color(target.color.r,target.color.g,target.color.b,_initialAlpha); };
+            _onCompleteCache = () => { if (isReturn) target.color = new Color(target.color.r,target.color.g,target.color.b,_initialAlpha); Complete(); };
+            _getterCache = () => target.color.a;
+            _setterCache = x => target.color=new Color(target.color.r,target.color.g,target.color.b,x);
         }
         protected override void OnReset()
         {
@@ -37,8 +37,8 @@ namespace MMCFeedbacks.Core
         }
         protected override void OnPlay(CancellationToken token)
         {
-            _initialColor = target.color;
-            _tween = Color.ExecuteTween(_ignoreTimeScale,_getterCache,_setterCache)
+            _initialAlpha = target.color.a;
+            _tween = Alpha.ExecuteTween(_ignoreTimeScale,_getterCache, _setterCache)
                 .OnKill(_onKillCache)
                 .OnComplete(_onCompleteCache);
         }

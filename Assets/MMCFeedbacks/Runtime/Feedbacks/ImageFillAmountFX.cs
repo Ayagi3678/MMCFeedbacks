@@ -2,6 +2,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using DG.Tweening.Core;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,15 +18,24 @@ namespace MMCFeedbacks.Core
 
         [SerializeField] private FloatTweenParameter ImageFillAmount=new();
 
+        private TweenCallback _onCompleteCache;
+        private DOGetter<float> _getterCache;
+        private DOSetter<float> _setterCache;
         private Tween _tween;
+        protected override void OnEnable(GameObject gameObject)
+        {
+            _onCompleteCache = Complete;
+            _getterCache = () => target.fillAmount;
+            _setterCache = x => target.fillAmount = x;
+        }
         protected override void OnReset()
         {
             _tween?.Kill();
         }
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
-            _tween = ImageFillAmount.DoTween(_ignoreTimeScale, value => target.fillAmount = value)
-                .OnComplete(Complete);
+            _tween = ImageFillAmount.ExecuteTween(_ignoreTimeScale, _getterCache,_setterCache)
+                .OnComplete(_onCompleteCache);
         }
         protected override void OnStop()
         {

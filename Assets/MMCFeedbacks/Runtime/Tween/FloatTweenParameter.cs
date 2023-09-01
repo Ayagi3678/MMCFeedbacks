@@ -1,5 +1,6 @@
 ﻿using System;
 using DG.Tweening;
+using DG.Tweening.Core;
 using MMCFeedbacks.Core;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -16,17 +17,17 @@ namespace MMCFeedbacks.Core
         [SerializeField] private float zero=1;
         [SerializeField] private float one;
         [SerializeField] private float duration=1;
-        
-        public Tween DoTween(bool ignoreTimeScale,TweenCallback<float> callback)
+
+        public Tween ExecuteTween(bool ignoreTimeScale,DOGetter<float> getter,DOSetter<float> setter)
         {
             if (!IsActive) return null;
-            var tween = DOVirtual.Float(zero, one, duration, callback)
+            var tween = DOTween.To(getter,setter,one,duration)
+                .From(zero)
                 .SetUpdate(ignoreTimeScale);
             if (mode == EaseMode.Ease) 
                 tween.SetEase(ease);
             else 
                 tween.SetEase(curve);
-            
             return tween;
         }
         public FloatTweenParameter(bool showActiveBox=false) => ShowActiveBox = showActiveBox;

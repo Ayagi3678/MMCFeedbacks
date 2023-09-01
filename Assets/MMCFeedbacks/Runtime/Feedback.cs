@@ -16,45 +16,52 @@ namespace MMCFeedbacks.Core
         
         [SerializeField] protected Timing _timing;
         [SerializeField] protected bool _ignoreTimeScale;
-        
-        private UniTaskCompletionSource _completionSource = new();
-        protected CancellationTokenSource CancellationTokenSource;
-        public void Play()
+
+        private CancellationToken Token;
+        private Func<bool> _cache;
+        private bool _isCompleted;
+        // ReSharper disable Unity.PerformanceAnalysis
+        public void Play(CancellationToken token)
         {
-            CancellationTokenSource?.Cancel();
-            CancellationTokenSource = new();
-            _completionSource = new();
-            OnReset();
-            PlayAsync().Forget();
+            _isCompleted = true;
+            Token = token;
+            if (_timing.delayTime != 0)
+            {
+                PlayAsync(token).Forget();
+            }
+            else
+            {
+                OnPlay(token);
+            }
         }
         public void Stop()=>OnStop();
-        public void Enable(GameObject gameObject) => OnEnable(gameObject);
-        public void Destroy()
+        public void Enable(GameObject gameObject)
         {
-            CancellationTokenSource?.Cancel();
-            OnDestroy();
+            _cache = () => _isCompleted;
+            OnEnable(gameObject);
         }
+        public void Destroy() => OnDestroy();
+        public void Reset() => OnReset();
 
         // ReSharper disable Unity.PerformanceAnalysis
-        private async UniTaskVoid PlayAsync()
+        private async UniTaskVoid PlayAsync(CancellationToken token)
         {
-            await UniTask.WaitForSeconds(_timing.delayTime, _ignoreTimeScale,
-                cancellationToken:CancellationTokenSource.Token);
-            OnPlay();
+            await UniTask.WaitForSeconds(_timing.delayTime, _ignoreTimeScale,cancellationToken : token);
+            OnPlay(token);
         }
         protected virtual void OnReset(){}
-        protected virtual void OnPlay(){}
+        protected virtual void OnPlay(CancellationToken token){}
         protected virtual void OnStop(){}
-        public virtual void OnEnable(GameObject gameObject){}
-        public virtual void OnDestroy(){}
+        protected virtual void OnEnable(GameObject gameObject){}
+        protected virtual void OnDestroy(){}
 
         protected void Complete()
         {
-            _completionSource.TrySetResult();
+            _isCompleted = true;
         }
         public async UniTask<bool> WaitCompleted()
         {
-            await _completionSource.Task;
+            await UniTask.WaitUntil(_cache,cancellationToken:Token);
             return true;
         }
     }

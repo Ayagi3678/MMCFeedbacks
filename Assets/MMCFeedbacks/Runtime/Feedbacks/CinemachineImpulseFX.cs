@@ -23,7 +23,7 @@ namespace MMCFeedbacks.Core
         [SerializeField][DisplayIf(nameof(mode),(int)ImpulseMode.ImpulseDefinition)]
         private CinemachineImpulseDefinition impulseDefinition = new ();
         
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             var camera = Camera.main;
             CinemachineImpulseManager.Instance.IgnoreTimeScale = _ignoreTimeScale;

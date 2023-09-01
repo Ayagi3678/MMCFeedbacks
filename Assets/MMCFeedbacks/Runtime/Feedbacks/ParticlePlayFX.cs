@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using UnityEngine;
 
 namespace MMCFeedbacks.Core
@@ -11,7 +12,7 @@ namespace MMCFeedbacks.Core
         public override Color TagColor => FeedbackStyling.ParticlesFXColor;
         [Space(10)] [SerializeField] private ParticleSystem particle;
 
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             particle.Play(true);
             Complete();

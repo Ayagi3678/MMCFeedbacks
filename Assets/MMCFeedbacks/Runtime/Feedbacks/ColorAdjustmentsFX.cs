@@ -2,6 +2,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using DG.Tweening.Core;
 using MMCFeedbacks.Core;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -24,15 +25,32 @@ namespace MMCFeedbacks.Core
         private float hueShift;
         [SerializeField][DisplayIf(nameof(Satuation),typeof(TweenParameter))][Range(-100,100)] 
         private float saturation;
-
+        
+        private DOGetter<float> _getterContrastCache;
+        private DOSetter<float> _setterContrastCache;
+        private DOGetter<float> _getterHueShiftCache;
+        private DOSetter<float> _setterHueShiftCache;
+        private DOGetter<float> _getterSaturationCache;
+        private DOSetter<float> _setterSaturationCache;
+        private TweenCallback _onCompleteCache;
         private ColorAdjustments _colorAdjustments;
         private Sequence _tweenSequence;
 
+        protected override void OnEnable(GameObject gameObject)
+        {
+            _getterContrastCache = () => _colorAdjustments.contrast.value;
+            _setterContrastCache = x => _colorAdjustments.contrast.value = x;
+            _getterHueShiftCache = () => _colorAdjustments.hueShift.value;
+            _setterHueShiftCache = x => _colorAdjustments.hueShift.value = x;
+            _getterSaturationCache = () => _colorAdjustments.saturation.value;
+            _setterSaturationCache = x => _colorAdjustments.saturation.value = x;
+            _onCompleteCache = () => { VolumeSingleton.Instance.DisableVolumeComponent(_colorAdjustments); Complete(); };
+        }
         protected override void OnReset()
         {
             _tweenSequence?.Kill();
         }
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             _colorAdjustments ??= VolumeSingleton.Instance.TryGetVolumeComponent<ColorAdjustments>();
             VolumeSingleton.Instance.EnableVolumeComponent(_colorAdjustments);
@@ -41,15 +59,10 @@ namespace MMCFeedbacks.Core
             if (!Satuation.IsActive) _colorAdjustments.saturation.value = saturation;
             _colorAdjustments.colorFilter.value = colorFilter;
             
-            _tweenSequence = DOTween.Sequence();
-            if (Contrast.IsActive) _tweenSequence.Join(Contrast.DoTween(_ignoreTimeScale, value => _colorAdjustments.contrast.value = value));
-            if (HueShift.IsActive) _tweenSequence.Join(HueShift.DoTween(_ignoreTimeScale, value => _colorAdjustments.hueShift.value = value));
-            if (Satuation.IsActive) _tweenSequence.Join(Satuation.DoTween(_ignoreTimeScale, value => _colorAdjustments.saturation.value = value));
-            _tweenSequence?.OnComplete(() =>
-            {
-                VolumeSingleton.Instance.DisableVolumeComponent(_colorAdjustments);
-                Complete();
-            });
+            _tweenSequence = DOTween.Sequence().OnComplete(_onCompleteCache);
+            if (Contrast.IsActive) _tweenSequence.Join(Contrast.ExecuteTween(_ignoreTimeScale, _getterContrastCache,_setterContrastCache));
+            if (HueShift.IsActive) _tweenSequence.Join(HueShift.ExecuteTween(_ignoreTimeScale, _getterHueShiftCache,_setterHueShiftCache));
+            if (Satuation.IsActive) _tweenSequence.Join(Satuation.ExecuteTween(_ignoreTimeScale, _getterSaturationCache,_setterSaturationCache));
         }
         protected override void OnStop()
         {

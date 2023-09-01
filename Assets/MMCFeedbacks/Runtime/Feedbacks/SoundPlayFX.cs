@@ -20,25 +20,25 @@ namespace MMCFeedbacks.Core
         [SerializeField,DisplayIf(nameof(mode),0)] private AudioClip clip;
         [SerializeField,DisplayIf(nameof(mode),0)] private float volumeScale = 1;
 
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
-            PlayAsync().Forget();
+            PlayAsync(token).Forget();
         }
 
-        private async UniTaskVoid PlayAsync()
+        private async UniTaskVoid PlayAsync(CancellationToken token)
         {
             switch (mode)
             {
                 case PlayMode.PlayOneShot:
                     target.PlayOneShot(clip,volumeScale);
-                    await UniTask.WaitUntil(()=>!target.isPlaying,cancellationToken:CancellationTokenSource.Token);
+                    await UniTask.WaitUntil(()=>!target.isPlaying,cancellationToken:token);
                     target.Stop();
                     Complete();
                     break;
                 case PlayMode.PlayAudioSource:
                     target.volume = volumeScale;
                     target.Play();
-                    await UniTask.WaitUntil(()=>!target.isPlaying,cancellationToken:CancellationTokenSource.Token);
+                    await UniTask.WaitUntil(()=>!target.isPlaying,cancellationToken:token);
                     Complete();
                     break;
                 case PlayMode.StopAudioSource:

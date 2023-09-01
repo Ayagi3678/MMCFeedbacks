@@ -12,7 +12,7 @@ namespace MMCFeedbacks.Core
         public override Color TagColor => FeedbackStyling.ObjectFXColor;
         [Space(10)] [SerializeField] private GameObject target;
         [SerializeField] private bool active = true;
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             target.SetActive(active);
             Complete();

@@ -2,6 +2,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using DG.Tweening.Core;
 using MMCFeedbacks.Core;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -16,7 +17,6 @@ namespace MMCFeedbacks.Core
         [Space(10)] 
 
         [SerializeField] private SimulationSpace simulationSpace;
-        [SerializeField, DisplayIf(nameof(simulationSpace), 2)] private Transform customTransformTarget;
         [Space(5)]
         [SerializeField] private GameObject target;
         [SerializeField] private bool isRelative = true;
@@ -30,47 +30,53 @@ namespace MMCFeedbacks.Core
         [SerializeField] private Vector3 one;
         [SerializeField] private float duration=1;
         
+        private TweenCallback _onKillCacheWorld;
+        private TweenCallback _onCompleteCacheWorld;
+        private TweenCallback _onKillCacheLocal;
+        private TweenCallback _onCompleteCacheLocal;
+        private DOGetter<Vector3> _getterCacheWorld;
+        private DOSetter<Vector3> _setterCacheWorld;
+        private DOGetter<Vector3> _getterCacheLocal;
+        private DOSetter<Vector3> _setterCacheLocal;
         private Vector3 _initialPosition;
         private Tween _tween;
+        protected override void OnEnable(GameObject gameObject)
+        {
+            _onKillCacheWorld = () => { if (isReturn) target.transform.position = _initialPosition; };
+            _onCompleteCacheWorld = () => { if (isReturn) target.transform.position = _initialPosition; Complete(); };
+            _onKillCacheLocal = () => { if (isReturn) target.transform.localPosition = _initialPosition; };
+            _onCompleteCacheLocal = () => { if (isReturn) target.transform.localPosition = _initialPosition; Complete(); };
+            
+            _getterCacheWorld = () => target.transform.position;
+            _setterCacheWorld = x => target.transform.position = x;
+            _getterCacheLocal = () => target.transform.localPosition;
+            _setterCacheLocal = x => target.transform.localPosition = x;
+        }
         protected override void OnReset()
         {
             _tween?.Kill();
         }
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             switch (simulationSpace)
             {
                 case SimulationSpace.World:
                     _initialPosition = target.transform.position;
-                    _tween = target.transform.DOMove(one, duration)
+                    _tween = DOTween.To(_getterCacheWorld,_setterCacheWorld,one,duration)
                         .From(zero, true, isRelative)
                         .SetRelative(isRelative)
                         .SetUpdate(_ignoreTimeScale)
-                        .OnKill(() =>
-                        {
-                            if (isReturn) target.transform.position = _initialPosition;
-                        })
-                        .OnComplete(() =>
-                        {
-                            if (isReturn) target.transform.position = _initialPosition;
-                            Complete();
-                        });
+                        .OnKill(_onKillCacheWorld)
+                        .OnComplete(_onCompleteCacheWorld);
                     break;
                 case SimulationSpace.Local:
                     _initialPosition = target.transform.localPosition;
-                    _tween = target.transform.DOLocalMove(one, duration)
+                    _tween = DOTween.To(_getterCacheLocal,_setterCacheLocal,one,duration)
                         .From(zero,true,isRelative)
                         .SetRelative(isRelative)
                         .SetUpdate(_ignoreTimeScale)
-                        .OnKill(() =>
-                        {
-                            if (isReturn) target.transform.localPosition = _initialPosition;
-                        })
-                        .OnComplete(() =>
-                        {
-                            if (isReturn) target.transform.localPosition = _initialPosition;
-                            Complete();
-                        });
+                        .OnKill(_onKillCacheLocal)
+                        .OnComplete(_onCompleteCacheLocal);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -85,5 +91,8 @@ namespace MMCFeedbacks.Core
         {
             _tween?.Pause();
         }
+
+
     }
+    
 }

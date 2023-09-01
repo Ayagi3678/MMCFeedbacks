@@ -20,7 +20,7 @@ namespace MMCFeedbacks.Core
             _timeEffect?.Discard();
         }
 
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             _timeEffect = new(priority, timeScale, durationTime);
             TimeSingleton.Instance.SetTimeRequest(_timeEffect);

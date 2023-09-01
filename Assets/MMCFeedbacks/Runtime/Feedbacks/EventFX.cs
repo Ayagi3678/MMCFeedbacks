@@ -15,7 +15,7 @@ namespace MMCFeedbacks.Core
         [Space(10)]
         [SerializeField] private UnityEvent @event;
 
-        protected override void OnPlay()
+        protected override void OnPlay(CancellationToken token)
         {
             @event.Invoke();
             Complete();

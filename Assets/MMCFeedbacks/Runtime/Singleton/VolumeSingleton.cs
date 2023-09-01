@@ -14,6 +14,7 @@ namespace MMCFeedbacks.Core
                 volume = gameObject.AddComponent<Volume>();
             }
         }
+
         public T TryGetVolumeComponent<T>() where T : VolumeComponent
         {
             if (volume.profile.TryGet(out T t)) return t;
