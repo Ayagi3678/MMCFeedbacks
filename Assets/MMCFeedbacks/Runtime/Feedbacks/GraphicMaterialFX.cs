@@ -28,8 +28,12 @@ namespace MMCFeedbacks.Core
         private TweenCallback _onCompleteCache;
         private DOGetter<float> _getterFloatCache;
         private DOSetter<float> _setterFloatCache;
+        private DOGetter<int> _getterIntCache;
+        private DOSetter<int> _setterIntCache;
         private DOGetter<Color> _getterColorCache;
         private DOSetter<Color> _setterColorCache;
+        private DOGetter<Vector3> _getterVector3Cache;
+        private DOSetter<Vector3> _setterVector3Cache;
         private Material _targetMaterial;
         private Tween _tween;
         protected override void OnEnable(GameObject gameObject)
@@ -37,8 +41,12 @@ namespace MMCFeedbacks.Core
             _onCompleteCache = () => { Object.Destroy(_targetMaterial);Complete(); };
             _getterFloatCache = () => _targetMaterial.GetFloat(propertyName);
             _setterFloatCache = x => _targetMaterial.SetFloat(propertyName, x);
+            _getterIntCache = () => _targetMaterial.GetInt(propertyName);
+            _setterIntCache = x => _targetMaterial.SetInt(propertyName, x);
             _getterColorCache = () => _targetMaterial.GetColor(propertyName);
             _setterColorCache = x => _targetMaterial.SetColor(propertyName, x);
+            _getterVector3Cache = () => _targetMaterial.GetVector(propertyName);
+            _setterVector3Cache = x => _targetMaterial.SetVector(propertyName, x);
         }
         protected override void OnReset()
         {
@@ -50,9 +58,9 @@ namespace MMCFeedbacks.Core
             _tween = type switch
             {
                 ParameterType.Float => Float.ExecuteTween(_ignoreTimeScale, _getterFloatCache,_setterFloatCache),
-                ParameterType.Int => Int.DoTween(_ignoreTimeScale, value => _targetMaterial.SetInt(propertyName, value)),
+                ParameterType.Int => Int.DoTween(_ignoreTimeScale, _getterIntCache,_setterIntCache),
                 ParameterType.Color => Color.ExecuteTween(_ignoreTimeScale, _getterColorCache,_setterColorCache),
-                ParameterType.Vector3 => Vector3.DoTween(_ignoreTimeScale,value=>_targetMaterial.SetVector(propertyName,value)),
+                ParameterType.Vector3 => Vector3.DoTween(_ignoreTimeScale,_getterVector3Cache,_setterVector3Cache),
                 _ => throw new ArgumentOutOfRangeException()
             };
             _tween.OnComplete(_onCompleteCache);
