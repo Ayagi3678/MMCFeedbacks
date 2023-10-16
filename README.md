@@ -3,6 +3,8 @@
 - 有能アセットFEELを真似て作ったのでmimic(真似をする)という命名になっている
 
 ※UniRx,UniTask,DoTweenの導入が必須
+
+（追記：さらに強化したバージョンのMMMCFeedbackを公開！）
 ## MMCFeedbackのつかいかた
 - #### フィードバックを追加する
   -  このライブラリを導入すると追加されるコンポーネント、`Feedback Player`を適当なObjectにつける
