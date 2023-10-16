@@ -9,7 +9,7 @@
    ![Image](/Assets/Documentation/img2.png)
 ## 使い方
 - FeedbackPlayerにはFeedbackPlay()・FeedbackStop()メソッドが定義されている
-- Editor再生中は`Play` `Stop`のボタンを押して、フィードバックの動作を確認できる
+- `Play` `Stop`のボタンを押して、フィードバックの動作を確認できる(Editor再生中にしかできません)
 - FeedbackPlayerの再生オプション
   - すべてのフィードバックを同時に再生する「Concurrent」
   - 順番にフィードバックを再生する「Sequence」
