@@ -57,10 +57,10 @@ namespace MMCFeedbacks.Core
             _targetMaterial = target.material;
             _tween = type switch
             {
-                ParameterType.Float => Float.ExecuteTween(_ignoreTimeScale, _getterFloatCache,_setterFloatCache),
-                ParameterType.Int => Int.DoTween(_ignoreTimeScale, _getterIntCache,_setterIntCache),
-                ParameterType.Color => Color.ExecuteTween(_ignoreTimeScale, _getterColorCache,_setterColorCache),
-                ParameterType.Vector3 => Vector3.DoTween(_ignoreTimeScale,_getterVector3Cache,_setterVector3Cache),
+                ParameterType.Float => Float.ExecuteTween(ignoreTimeScale, _getterFloatCache,_setterFloatCache),
+                ParameterType.Int => Int.DoTween(ignoreTimeScale, _getterIntCache,_setterIntCache),
+                ParameterType.Color => Color.ExecuteTween(ignoreTimeScale, _getterColorCache,_setterColorCache),
+                ParameterType.Vector3 => Vector3.DoTween(ignoreTimeScale,_getterVector3Cache,_setterVector3Cache),
                 _ => throw new ArgumentOutOfRangeException()
             };
             _tween.OnComplete(_onCompleteCache);

@@ -11,7 +11,7 @@ namespace MMCFeedbacks.Core
     public class GraphicAlphaFX : Feedback
     {
         public override int Order => 5;
-        public override string MenuString => "Graphic/Graphic Color";
+        public override string MenuString => "Graphic/Graphic Alpha";
         public override Color TagColor => FeedbackStyling.GraphicFXColor; 
         [Space(10)]
         [SerializeField] private Graphic target;
@@ -38,7 +38,7 @@ namespace MMCFeedbacks.Core
         protected override void OnPlay(CancellationToken token)
         {
             _initialAlpha = target.color.a;
-            _tween = Alpha.ExecuteTween(_ignoreTimeScale,_getterCache, _setterCache)
+            _tween = Alpha.ExecuteTween(ignoreTimeScale,_getterCache, _setterCache)
                 .OnKill(_onKillCache)
                 .OnComplete(_onCompleteCache);
         }

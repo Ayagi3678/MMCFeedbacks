@@ -37,7 +37,7 @@ namespace MMCFeedbacks.Core
         protected override void OnPlay(CancellationToken token)
         {
             _initialFOV = target.fieldOfView;
-            _tween=Fov.ExecuteTween(_ignoreTimeScale, _getterCache,_setterCache)
+            _tween=Fov.ExecuteTween(ignoreTimeScale, _getterCache,_setterCache)
                 .OnKill(_onKillCache)
                 .OnComplete(_onCompleteCache);
         }

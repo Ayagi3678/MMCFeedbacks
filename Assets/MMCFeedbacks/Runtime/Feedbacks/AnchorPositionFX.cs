@@ -51,7 +51,7 @@ namespace MMCFeedbacks.Core
             _tween = DOTween.To(_getterCache,_setterCache,one,duration)
                 .From(zero,true,isRelative)
                 .SetRelative(isRelative)
-                .SetUpdate(_ignoreTimeScale)
+                .SetUpdate(ignoreTimeScale)
                 .OnKill(_onKillCache)
                 .OnComplete(_onCompleteCache);
             if (mode == EaseMode.Ease) 

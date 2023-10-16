@@ -60,9 +60,9 @@ namespace MMCFeedbacks.Core
             _colorAdjustments.colorFilter.value = colorFilter;
             
             _tweenSequence = DOTween.Sequence().OnComplete(_onCompleteCache);
-            if (Contrast.IsActive) _tweenSequence.Join(Contrast.ExecuteTween(_ignoreTimeScale, _getterContrastCache,_setterContrastCache));
-            if (HueShift.IsActive) _tweenSequence.Join(HueShift.ExecuteTween(_ignoreTimeScale, _getterHueShiftCache,_setterHueShiftCache));
-            if (Satuation.IsActive) _tweenSequence.Join(Satuation.ExecuteTween(_ignoreTimeScale, _getterSaturationCache,_setterSaturationCache));
+            if (Contrast.IsActive) _tweenSequence.Join(Contrast.ExecuteTween(ignoreTimeScale, _getterContrastCache,_setterContrastCache));
+            if (HueShift.IsActive) _tweenSequence.Join(HueShift.ExecuteTween(ignoreTimeScale, _getterHueShiftCache,_setterHueShiftCache));
+            if (Satuation.IsActive) _tweenSequence.Join(Satuation.ExecuteTween(ignoreTimeScale, _getterSaturationCache,_setterSaturationCache));
         }
         protected override void OnStop()
         {

@@ -39,7 +39,7 @@ namespace MMCFeedbacks.Core
         {
             _initialScale = target.transform.localScale;
             _tween = target.transform.DOShakeScale(duration,strength,vibrato,randomness,isFadeOut)
-                .SetUpdate(_ignoreTimeScale)
+                .SetUpdate(ignoreTimeScale)
                 .SetRelative(isRelative)
                 .OnKill(()=> target.transform.localScale = _initialScale)
                 .OnComplete(() =>

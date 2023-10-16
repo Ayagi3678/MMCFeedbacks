@@ -33,7 +33,7 @@ namespace MMCFeedbacks.Core
 
         protected override void OnPlay(CancellationToken token)
         {
-            _tween = Alpha.ExecuteTween(_ignoreTimeScale,_getterCache,_setterCache)
+            _tween = Alpha.ExecuteTween(ignoreTimeScale,_getterCache,_setterCache)
                 .OnComplete(_onCompleteCache);
         }
 

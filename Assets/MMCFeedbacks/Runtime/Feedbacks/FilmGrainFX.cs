@@ -47,7 +47,7 @@ namespace MMCFeedbacks.Core
             _filmGrain.intensity.value = intensity;
             _filmGrain.response.value = response;
             
-            _tween = Intensity.ExecuteTween(_ignoreTimeScale, _getterCache,_setterCache)
+            _tween = Intensity.ExecuteTween(ignoreTimeScale, _getterCache,_setterCache)
                 .OnComplete(_onCompleteCache);
         }
 

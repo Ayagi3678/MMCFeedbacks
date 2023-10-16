@@ -65,7 +65,7 @@ namespace MMCFeedbacks.Core
                     _tween = DOTween.To(_getterCacheWorld,_setterCacheWorld,one,duration)
                         .From(zero, true, isRelative)
                         .SetRelative(isRelative)
-                        .SetUpdate(_ignoreTimeScale)
+                        .SetUpdate(ignoreTimeScale)
                         .OnKill(_onKillCacheWorld)
                         .OnComplete(_onCompleteCacheWorld);
                     break;
@@ -74,7 +74,7 @@ namespace MMCFeedbacks.Core
                     _tween = DOTween.To(_getterCacheLocal,_setterCacheLocal,one,duration)
                         .From(zero,true,isRelative)
                         .SetRelative(isRelative)
-                        .SetUpdate(_ignoreTimeScale)
+                        .SetUpdate(ignoreTimeScale)
                         .OnKill(_onKillCacheLocal)
                         .OnComplete(_onCompleteCacheLocal);
                     break;

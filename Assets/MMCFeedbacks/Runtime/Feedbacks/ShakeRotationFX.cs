@@ -38,7 +38,7 @@ namespace MMCFeedbacks.Core
         {
             _initialRotation = target.transform.eulerAngles;
             _tween = target.transform.DOShakeRotation(duration,strength,vibrato,randomness,isFadeOut)
-                .SetUpdate(_ignoreTimeScale)
+                .SetUpdate(ignoreTimeScale)
                 .SetRelative(isRelative)
                 .OnKill(()=> target.transform.eulerAngles = _initialRotation)
                 .OnComplete(() =>

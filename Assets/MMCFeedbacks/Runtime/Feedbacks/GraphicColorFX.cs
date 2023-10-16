@@ -38,7 +38,7 @@ namespace MMCFeedbacks.Core
         protected override void OnPlay(CancellationToken token)
         {
             _initialColor = target.color;
-            _tween = Color.ExecuteTween(_ignoreTimeScale,_getterCache,_setterCache)
+            _tween = Color.ExecuteTween(ignoreTimeScale,_getterCache,_setterCache)
                 .OnKill(_onKillCache)
                 .OnComplete(_onCompleteCache);
         }

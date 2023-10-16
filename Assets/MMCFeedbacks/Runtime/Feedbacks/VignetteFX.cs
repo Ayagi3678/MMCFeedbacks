@@ -59,8 +59,8 @@ namespace MMCFeedbacks.Core
             
             _tweenSequence = DOTween.Sequence();
             _tweenSequence
-                .Join(Intensity.ExecuteTween(_ignoreTimeScale,_getterIntensityCache,_setterIntensityCache))
-                .Join(Color.ExecuteTween(_ignoreTimeScale, _getterColorCache,_setterColorCache));
+                .Join(Intensity.ExecuteTween(ignoreTimeScale,_getterIntensityCache,_setterIntensityCache))
+                .Join(Color.ExecuteTween(ignoreTimeScale, _getterColorCache,_setterColorCache));
             _tweenSequence.OnComplete(_onCompleteCache);
         }
 

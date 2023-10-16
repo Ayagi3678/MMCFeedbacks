@@ -42,7 +42,7 @@ namespace MMCFeedbacks.Core
             VolumeSingleton.Instance.EnableVolumeComponent(_chromaticAberration);
             if (!Intensity.IsActive) _chromaticAberration.intensity.value = intensity;
             
-            _tween = Intensity.ExecuteTween(_ignoreTimeScale, _getterCache,_setterCache)
+            _tween = Intensity.ExecuteTween(ignoreTimeScale, _getterCache,_setterCache)
                 .OnComplete(_onCompleteCache);
         }
 

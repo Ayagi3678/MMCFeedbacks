@@ -26,7 +26,7 @@ namespace MMCFeedbacks.Core
         protected override void OnPlay(CancellationToken token)
         {
             var camera = Camera.main;
-            CinemachineImpulseManager.Instance.IgnoreTimeScale = _ignoreTimeScale;
+            CinemachineImpulseManager.Instance.IgnoreTimeScale = ignoreTimeScale;
             switch(mode)
             {
                 case ImpulseMode.ImpulseSource:

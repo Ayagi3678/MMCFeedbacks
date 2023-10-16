@@ -39,7 +39,7 @@ namespace MMCFeedbacks.Core
         {
             _initialPosition = target.transform.position;
             _tween = target.transform.DOShakePosition(duration, strength, vibrato, randomness, snapping, isFadeOut)
-                .SetUpdate(_ignoreTimeScale)
+                .SetUpdate(ignoreTimeScale)
                 .SetRelative(isRelative)
                 .OnKill(()=> target.transform.position = _initialPosition)
                 .OnComplete(() =>

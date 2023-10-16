@@ -39,7 +39,7 @@ namespace MMCFeedbacks.Core
         protected override void OnPlay(CancellationToken token)
         {
             _initialVolume = target.volume;
-            _tween=Volume.ExecuteTween(_ignoreTimeScale, _getterCache,_setterCache)
+            _tween=Volume.ExecuteTween(ignoreTimeScale, _getterCache,_setterCache)
                 .OnKill(_onKillCache)
                 .OnComplete(_onCompleteCache);
         }

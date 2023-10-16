@@ -34,7 +34,7 @@ namespace MMCFeedbacks.Core
         }
         protected override void OnPlay(CancellationToken token)
         {
-            _tween = ImageFillAmount.ExecuteTween(_ignoreTimeScale, _getterCache,_setterCache)
+            _tween = ImageFillAmount.ExecuteTween(ignoreTimeScale, _getterCache,_setterCache)
                 .OnComplete(_onCompleteCache);
         }
         protected override void OnStop()

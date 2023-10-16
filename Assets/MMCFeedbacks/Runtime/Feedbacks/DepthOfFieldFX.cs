@@ -58,8 +58,8 @@ namespace MMCFeedbacks.Core
             _depthOfField.bladeRotation.value = bladeRotation;
 
             _tweenSequence = DOTween.Sequence().OnComplete(_onCompleteCache);
-            if(FocusDistance.IsActive)_tweenSequence.Join(FocusDistance.ExecuteTween(_ignoreTimeScale,_getterFocusDistanceCache,_setterFocusDistanceCache));
-            if(FocalLength.IsActive)_tweenSequence.Join(FocalLength.ExecuteTween(_ignoreTimeScale, _getterFocalLengthCache,_setterFocalLengthCache));
+            if(FocusDistance.IsActive)_tweenSequence.Join(FocusDistance.ExecuteTween(ignoreTimeScale,_getterFocusDistanceCache,_setterFocusDistanceCache));
+            if(FocalLength.IsActive)_tweenSequence.Join(FocalLength.ExecuteTween(ignoreTimeScale, _getterFocalLengthCache,_setterFocalLengthCache));
         }
         protected override void OnStop()
         {

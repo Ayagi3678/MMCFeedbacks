@@ -39,7 +39,7 @@ namespace MMCFeedbacks.Core
         protected override void OnPlay(CancellationToken token)
         {
             _initialPitch = target.pitch;
-            _tween=Pitch.ExecuteTween(_ignoreTimeScale, _getterCache,_setterCache)
+            _tween=Pitch.ExecuteTween(ignoreTimeScale, _getterCache,_setterCache)
                 .OnKill(_onKillCache)
                 .OnComplete(_onCompleteCache);
         }

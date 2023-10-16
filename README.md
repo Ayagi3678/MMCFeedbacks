@@ -6,7 +6,8 @@
 ## フィードバックの作り方
 - FeedbackPlayerコンポーネントをアタッチし、`AddFeedback▼`からフィードバックを追加する
 - フィードバックは[menu]から、削除・複製・リセットを行う　
-   ![Image](/Assets/Documentation/img2.png)
+
+![Image](/Assets/Documentation/img2.png)
 ## 使い方
 - FeedbackPlayerにはFeedbackPlay()・FeedbackStop()メソッドが定義されている
 - Editor再生中は`Play` `Stop`のボタンを押して、フィードバックの動作を確認できる

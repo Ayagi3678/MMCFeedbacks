@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace MMCFeedbacks.Core
 {
+
     [Serializable]
     public abstract class Feedback
     {
@@ -14,18 +15,18 @@ namespace MMCFeedbacks.Core
         public abstract Color TagColor { get; }
         public bool IsActive { get; set; } = true;
         
-        [SerializeField] protected Timing _timing;
-        [SerializeField] protected bool _ignoreTimeScale;
+        [SerializeField] protected Timing timing;
+        [SerializeField] protected bool ignoreTimeScale;
 
-        private CancellationToken Token;
+        private CancellationToken _token;
         private Func<bool> _cache;
         private bool _isCompleted;
         // ReSharper disable Unity.PerformanceAnalysis
         public void Play(CancellationToken token)
         {
             _isCompleted = true;
-            Token = token;
-            if (_timing.delayTime != 0)
+            _token = token;
+            if (timing.delayTime != 0)
             {
                 PlayAsync(token).Forget();
             }
@@ -46,7 +47,7 @@ namespace MMCFeedbacks.Core
         // ReSharper disable Unity.PerformanceAnalysis
         private async UniTaskVoid PlayAsync(CancellationToken token)
         {
-            await UniTask.WaitForSeconds(_timing.delayTime, _ignoreTimeScale,cancellationToken : token);
+            await UniTask.WaitForSeconds(timing.delayTime, ignoreTimeScale,cancellationToken : token);
             OnPlay(token);
         }
         protected virtual void OnReset(){}
@@ -61,7 +62,7 @@ namespace MMCFeedbacks.Core
         }
         public async UniTask<bool> WaitCompleted()
         {
-            await UniTask.WaitUntil(_cache,cancellationToken:Token);
+            await UniTask.WaitUntil(_cache,cancellationToken:_token);
             return true;
         }
     }
