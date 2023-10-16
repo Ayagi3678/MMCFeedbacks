@@ -28,7 +28,8 @@
 
    ![Image 1](/Assets/Documentation/img1.png)
 ## 拡張について
-- IFeedbackを継承したクラスを作成し、Play()に実行したい処理を書く。
+- Feedbackを継承したクラスを作成し、overrideメソッドでいろいろする
+- クラスには[Serializable]というアトリビュートをつける
 - Stateを実行時にRunning, 完了時にCompletedにする(※必須)
 ## UPMを使った導入方法
 - Window => Package Manager => Add package from git URL...に
