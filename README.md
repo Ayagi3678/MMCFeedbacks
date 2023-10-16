@@ -3,11 +3,22 @@
 - 有能アセットFEELを真似て作ったのでmimic(真似をする)という命名になっている
 
 ※UniRx,UniTask,DoTweenの導入が必須
-## フィードバックの作り方
-- FeedbackPlayerコンポーネントをアタッチし、`AddFeedback▼`からフィードバックを追加する
-- フィードバックは[menu]から、削除・複製・リセットを行う　
+
+## MMCFeedbackのつかいかた
+### フィードバックを追加する
+1. このライブラリを導入すると追加されるコンポーネント、`Feedback Player`を適当なObjectにつける
+2. `Feedback Player`内の`AddFeedback▼`というボタンから使うフィードバックを選択して追加
+### フィードバックの設定
+1. 追加したフィードバックは[menu]から、削除・複製・リセットを行う
 
 ![Image](/Assets/Documentation/img2.png)
+
+2.インスペクターから、参照や数値を変更
+## フィードバックの作り方
+- FeedbackPlayerコンポーネントをアタッチし、からフィードバックを追加する
+- フィードバックは
+
+
 ## 使い方
 - FeedbackPlayerにはFeedbackPlay()・FeedbackStop()メソッドが定義されている
 - `Play` `Stop`のボタンを押して、フィードバックの動作を確認できる(Editor再生中にしかできません)
