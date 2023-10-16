@@ -2,7 +2,7 @@
 - 色々なものをTweenさせて簡単にフィードバック（ゲームの手触り）が作れるツール
 - 有能アセットFEELを真似て作ったのでmimic(真似をする)という命名になっている
 
-※UniRx,UniTask,DoTweenの導入が必須
+※UniRx,UniTask,DoTweenの導入が必須（無いとエラーがでます）
 
 （追記：さらに機能が強化された[**MMMCFeedback**](https://github.com/Ayagi3678/MMMCFeedbacks)を公開！）
 ## MMCFeedbackのつかいかた
