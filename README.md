@@ -1,8 +1,8 @@
-# MMCFeedbacks ってなぁに？
+# MMCFeedbacks とは？
 - 色々なものをTweenさせてフィードバック（ゲームの手触り）を作るツール
 - 有能アセットFEELを真似て作ったのでmimic(真似をする)という命名になっている
 
-※UniRx,UniTask,DoTweenの導入が必要
+※UniRx,UniTask,DoTweenの導入が必須
 ## フィードバックの作り方
 - FeedbackPlayerコンポーネントをアタッチし、`AddFeedback▼`からフィードバックを追加する
 - フィードバックは[menu]から、削除・複製・リセットを行う　
@@ -10,7 +10,7 @@
 ![Image](/Assets/Documentation/img2.png)
 ## 使い方
 - FeedbackPlayerにはFeedbackPlay()・FeedbackStop()メソッドが定義されている
-- Editor再生中は`Play` `Stop`のボタンを押して、フィードバックの動作を確認できる
+- `Play` `Stop`のボタンを押して、フィードバックの動作を確認できる(Editor再生中にしかできません)
 - FeedbackPlayerの再生オプション
   - すべてのフィードバックを同時に再生する「Concurrent」
   - 順番にフィードバックを再生する「Sequence」
