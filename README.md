@@ -2,7 +2,7 @@
 - 色々なものをTweenさせてフィードバック（ゲームの手触り）を作るツール
 - 有能アセットFEELを真似て作ったのでmimic(真似をする)という命名になっている
 
-※UniRx,UniTask,DoTweenの導入が必要
+※UniRx,UniTask,DoTweenの導入が必須
 ## フィードバックの作り方
 - FeedbackPlayerコンポーネントをアタッチし、`AddFeedback▼`からフィードバックを追加する
 - フィードバックは[menu]から、削除・複製・リセットを行う　
