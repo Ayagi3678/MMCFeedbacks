@@ -4,7 +4,7 @@
 
 ※UniRx,UniTask,DoTweenの導入が必須
 
-（追記：さらに機能が強化されたのMMMCFeedbackを公開！）
+（追記：さらに機能が強化されたのMMMCFeedbackを公開！そちらを使ったほうがイイカモ...）
 ## MMCFeedbackのつかいかた
 - #### フィードバックを追加する
   -  このライブラリを導入すると追加されるコンポーネント、`Feedback Player`を適当なObjectにつける
